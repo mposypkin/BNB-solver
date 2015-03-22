@@ -1,0 +1,82 @@
+[<command>
+  <name>PUT_PROBLEM_DSC</name>
+  <id>1</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description>
+   <glob>
+     <objective>
+       <molec>
+         <natoms>NATOMTMPL</natoms>
+         <dim>3</dim>
+         <potent>
+           <mors>14</mors>
+         </potent>
+       </molec>
+     </objective>
+     <box>
+       <dim>NVARTMPL</dim>
+       <a>-5.</a>
+       <b>5.</b>
+     </box>
+   </glob>
+ </description>
+  <code>forward</code>
+</command>]
+
+[<command>
+  <name>CREATE_SOLVER</name>
+  <id>4</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description>
+  <sloc>
+  <localsearch>
+  <basinhop>
+  <nhop>96</nhop>
+  <ampl>0.8</ampl>
+  <localsearch>
+  <lbfgs>
+  <eps>0.001</eps>
+  </lbfgs>
+  </localsearch>
+  </basinhop>
+  </localsearch>
+  <delta>
+  0.01
+  </delta>
+  </sloc>
+ </description>
+  <code>forward</code>
+</command>]
+
+[<command>
+  <name>SOLVE</name>
+  <id>5</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description></description>
+  <code></code>
+</command>]
+
+[<command>
+  <name>PUT_SOLUTIONS</name>
+  <id></id>
+  <type>ASYNC</type>
+  <status></status>
+ <description>
+  SOLUTMPL
+ </description>
+  <code></code>
+</command>]
+
+[<command>
+  <name>START_SOLVE</name>
+  <id>8</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description></description>
+  <code>
+  drop
+ </code>
+</command>]

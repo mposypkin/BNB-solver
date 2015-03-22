@@ -1,0 +1,75 @@
+[
+ <command>
+ <name>PUT_PROBLEM_DSC</name>
+ <id>1</id>
+ <description>
+   <glob>
+     <objective>
+       <molec>
+         <natoms>20</natoms>
+         <dim>3</dim>
+         <potent>
+           <mors>14</mors>
+         </potent>
+       </molec>
+     </objective>
+     <box>
+       <dim>60</dim>
+       <a>-5.</a>
+       <b>5.</b>
+     </box>
+   </glob>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>CREATE_SOLVER</name>
+ <id>4</id>
+ <description>
+  <sloc>
+  <localsearch>
+  <basinhop>
+  <nhop>32</nhop>
+  <ampl>0.8</ampl>
+  <localsearch>
+  <lbfgs>
+  <eps>0.001</eps>
+  </lbfgs>
+  </localsearch>
+  </basinhop>
+  </localsearch>
+  </sloc>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>SOLVE</name>
+ <id>5</id>
+ <description></description>
+ </command>
+]
+[
+<command>
+  <name>PUT_SOLUTIONS</name>
+  <id>7</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description>
+  </description>
+  <code>load @description ./seed.txt</code>
+</command>
+]
+[
+ <command>
+ <name>START_SOLVE</name>
+ <id>8</id>
+ <description></description>
+ <code>
+  drop
+ </code>
+ </command>
+]

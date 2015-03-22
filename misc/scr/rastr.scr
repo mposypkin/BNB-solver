@@ -1,0 +1,86 @@
+[
+ <command>
+ <name>DUMMY</name>
+ <code>
+ var SINCUM; 
+ set $SINCUM "save @description /home/bagside/tmp/incumbent.xml";
+ var ONFINISH;
+ set $ONFINISH "exit"; 
+ </code>
+ </command>
+]
+
+[
+ <command>
+ <name>PUT_PROBLEM_DSC</name>
+ <id>1</id>
+ <description>
+   <glob>
+     <objective>
+       <rastrigin>
+         <dim>15</dim>
+       </rastrigin>
+     </objective>
+     <box>
+       <dim>15</dim>
+       <a>-1.</a>
+       <b>1.</b>
+     </box>
+   </glob>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>CREATE_SOLVER</name>
+ <id>4</id>
+ <description>
+   <parmulti>
+     <localsearch>
+       <basinhop>
+         <nhop>1024</nhop>
+         <ampl>2</ampl>
+         <localsearch>
+           <lbfgs>
+             <eps>0.001</eps>
+           </lbfgs>
+         </localsearch>
+       </basinhop>
+     </localsearch>
+   </parmulti>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>SOLVE</name>
+ <id>5</id>
+ <description></description>
+ <code>forward</code>
+ </command>
+]
+[
+<command>
+  <name>PUT_SOLUTIONS</name>
+  <id>7</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description>TOP</description>
+  <code>
+   load @description /home/bagside/tmp/rastsol.txt;
+   drop
+  </code>
+</command>
+]
+
+[
+ <command>
+ <name>START_SOLVE</name>
+ <id>8</id>
+ <description></description>
+ <code>drop</code>
+ </command>
+]
+

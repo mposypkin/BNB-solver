@@ -1,0 +1,22 @@
+<[PUT_PROCS_NUMBER,0]{2}>
+<[PUT_SOLVER_CFG,1]{MasterTreshold=5}>
+<[PUT_PROBLEM_DSC,2]{BOOL_1DIM_KNAPSACK}>
+<[PUT_PROBLEM_DATA,3]{
+  3
+  2 2
+  2 2
+  2 2
+  3
+}>
+<[CREATE_SOLVER, 4]{CLMS_SOLVER}>
+<[SOLVE,5]{}>
+<[PUT_SET,6]{
+  1
+  3
+  0
+  0
+  0
+  0
+  -1 -1 -1
+}>
+<[EXIT]{}>

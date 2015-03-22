@@ -1,0 +1,17 @@
+<sloc>
+    <nls>1</nls>
+    <nis>32</nis>
+    <ampl>0</ampl>
+    <localsearch>
+        <basinhop>
+            <nhop>8</nhop>
+            <ampl>0.8</ampl>
+            <localsearch>
+                <lbfgs>
+                    <eps>0.001</eps>
+                </lbfgs>
+            </localsearch>
+        </basinhop>
+    </localsearch>
+</sloc>
+

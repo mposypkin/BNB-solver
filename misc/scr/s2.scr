@@ -1,0 +1,82 @@
+[
+  <command>
+ <name>PUT_PROBLEM_DSC</name>
+ <id>1</id>
+ <description>
+   <glob>
+     <objective>
+       <molec>
+         <natoms>2</natoms>
+         <dim>3</dim>
+         <potent>
+           <mors>14</mors>
+         </potent>
+       </molec>
+     </objective>
+     <box>
+       <dim>6</dim>
+       <a>-5.</a>
+       <b>5.</b>
+     </box>
+   </glob>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>CREATE_SOLVER</name>
+ <id>4</id>
+ <description>
+  <sloc>
+       <localsearch>
+         <conjgrad>
+           <type>PR</type>
+           <eps>0.0001</eps>
+           <mi>10000</mi>
+           <linesearch>
+             <wolf>        
+               <eps>0.00005</eps>
+               <re>0.1</re>
+               <rho>0.05</rho>
+               <sigma>0.1</sigma> 
+             </wolf>
+           </linesearch>
+         </conjgrad>
+       </localsearch>
+  </sloc>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>SOLVE</name>
+ <id>5</id>
+ <description></description>
+ </command>
+]
+[
+<command>
+  <name>PUT_SOLUTIONS</name>
+  <id>7</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description>
+   <solu><x>0.0 0.0 0.0 0.0 1.0 1.0</x><f>0.0</f></solu>
+  </description>
+</command>
+]
+[
+ <command>
+ <name>START_SOLVE</name>
+ <id>8</id>
+ <description></description>
+ <code>
+  drop
+ </code>
+ </command>
+]
+
+
+

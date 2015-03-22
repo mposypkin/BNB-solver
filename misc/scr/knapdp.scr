@@ -1,0 +1,68 @@
+[
+ <command>
+ <name>DUMMY</name>
+ <code>
+ var SINCUM;
+ set $SINCUM "forward";
+ var ONFINISH;
+ set $ONFINISH "exit";
+ </code>
+ </command>
+]
+[
+ <command>
+ <name>PUT_PROBLEM_DSC</name>
+ <id>1</id>
+ <description>
+   <knap>
+     <n>4</n>
+     <w>2 3 5 7</w>
+     <p>5 7 6 3</p>
+     <c>9</c>
+   </knap>
+ </description>
+ <code>
+ forward;
+ </code>
+ </command>
+]
+
+[
+ <command>
+ <name>CREATE_SOLVER</name>
+ <id>2</id>
+ <description>
+   <knapdp>
+   </knapdp>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>SOLVE</name>
+ <id>3</id>
+ <description></description>
+ <code>forward</code>
+ </command>
+]
+[
+<command>
+<name>PUT_SETS</name>
+<id>7</id>
+<type>ASYNC</type>
+<description>
+<set>00**</set>
+<set>01**</set>
+<set>10**</set>
+<set>11**</set>
+</description>
+<code>drop</code>
+</command>
+]
+
+
+
+
+
+

@@ -1,0 +1,87 @@
+[
+ <command>
+ <name>DUMMY</name>
+ <code>
+ var SINCUM; 
+ set $SINCUM "save @description ./incumbent-file.xml";
+ var ONFINISH;
+ set $ONFINISH "exit"; 
+ </code>
+ </command>
+]
+
+
+
+[
+ <command>
+ <name>PUT_PROBLEM_DSC</name>
+ <id>1</id>
+    <description>
+        <glob>
+            <objective>
+                <ampl_stub>
+                    <stub_file>./stub4Morse_r14_N20.txt.nl</stub_file>
+                </ampl_stub>
+            </objective>
+            <box>
+                <dim>60</dim>
+                <a>-1.</a>
+                <b>1.</b>
+            </box>
+        </glob>
+    </description>
+ <code>forward</code>
+ </command>
+]
+
+
+
+
+[
+ <command>
+ <name>CREATE_SOLVER</name>
+ <id>4</id>
+    <description>TOP</description>
+  <code>
+load @description ./solver.xml;
+   drop
+  </code>
+ </command>
+]
+
+
+[
+ <command>
+ <name>SOLVE</name>
+ <id>5</id>
+ <description></description>
+ <code>forward</code>
+ </command>
+]
+
+
+
+[
+<command>
+  <name>PUT_SOLUTIONS</name>
+  <id>7</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description>TOP</description>
+  <code>
+load @description ./state-20x5.xml;
+   drop
+  </code>
+</command>
+]
+
+
+[
+ <command>
+ <name>START_SOLVE</name>
+ <id>8</id>
+ <description></description>
+ <code>drop</code>
+ </command>
+]
+

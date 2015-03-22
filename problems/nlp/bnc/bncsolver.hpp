@@ -1,0 +1,129 @@
+/* 
+ * File:   bncsolver.hpp
+ * Author: medved
+ *
+ * Basic Branch and Cut Solver
+ * 
+ * Created on January 6, 2015, 2:20 PM
+ */
+
+#ifndef BNCSOLVER_HPP
+#define	BNCSOLVER_HPP
+
+#include <util/box/boxutils.hpp>
+#include <util/tree/bnbtreeutils.hpp>
+#include <problems/nlp/cuts/cutapplicator.hpp>
+#include <problems/nlp/cuts/cutfactory.hpp>
+#include "bncstate.hpp"
+#include "bncsubprinter.hpp"
+
+template <class FT> class BNCSolver {
+public:
+
+    /**
+     * Constructor
+     * @param ca pointer to cut applicator
+     * @param cf pointer to cut factory
+     * @param clpd cut lookup depth (how long go up to the tree for cuts)
+     */
+    BNCSolver(CutFactory<FT>* cf, CutApplicator<FT>* ca, int clpd = 1) {
+        mCutFactory = cf;
+        mCutApplicator = ca;
+        mCutLookupDepth = clpd;
+    }
+
+    /**
+     * The resolution process
+     * @param maxiters the upper bound for iterations on entry, on exit real number of performed iters
+     * @param bncs the state of computations 
+     * @param recupd true if record was updated
+     */
+    void solve(long long int& maxiters, BNCState<FT> & bnc, bool& recupd) {
+        long long int I = 0;
+        BNCSubPrinter<double> subprinter;
+        for (; I < maxiters; I++) {
+#if 0            
+            std::cout << "step " << I << " ================\n";
+            std::cout << "Record = " << bnc.mRecord->getValue() << "\n";
+            BNBTreeUtils::printTree(*bnc.mTree, subprinter);
+#endif            
+
+            BNBNode* node = bnc.mTreeManager->get();
+            if (node == NULL)
+                break;
+            BNCSub<FT>* sub = (BNCSub<FT>*) node->mData;
+            mCutFactory->getCuts(sub->mBox, sub->mCuts);
+            std::vector< Box<FT> > bv;
+            std::vector< Cut<FT> > cuts;
+            BNBNode* np = node;
+            int cutd = 0;
+            bv.push_back(sub->mBox);
+            while (np && (cutd++ < mCutLookupDepth)) {
+                BNCSub<FT>* subp = (BNCSub<FT>*) np->mData;
+                applyCuts(subp->mCuts, bv);
+                np = np->mParent;
+            }
+            if (bv.empty())
+                continue;
+            else if (bv.size() == 1) {
+                int n = sub->mBox.mDim;
+                Box<FT> b0(n), b1(n), b2(n);
+                b0 = bv.at(0);
+                bv.pop_back();
+                BoxUtils::divideByLongestEdge(b0, b1, b2);
+                bv.push_back(b1);
+                bv.push_back(b2);
+            }
+            pushNewSubs(*bnc.mTreeManager, bv, node);
+        }
+        maxiters = I;
+    }
+
+private:
+
+    void applyCuts(std::vector< Cut<FT> > &cuts, std::vector< Box<FT> > &v) {
+        std::vector< Box<FT> > nv;
+        for (auto b : v) {
+#if 0          
+            for (auto c : cuts) {
+                std::cout << "Applying cuts: ";
+                std::cout << CutUtils<FT>::toString(c) << " to box " << BoxUtils::toString(b) << "\n";                
+            }
+#endif
+            mCutApplicator->ApplyCut(cuts, b, nv);
+#if 0            
+            for (auto bb : nv) {
+                std::cout << "Resulting boxes: ";
+                std::cout << BoxUtils::toString(bb) << "\n";
+                std::cout << ":::\n";
+            }
+#endif            
+        }
+        v = nv;
+    }
+
+    void pushNewSubs(BNBTreeManager& manager, const std::vector< Box<FT> > &bv, BNBNode * node) {
+        for (auto o : bv) {
+            BNBNode* nn = makeNode(o);
+            BNBTreeUtils::appendNode(node, nn);
+            manager.reg(nn);
+        }
+    }
+
+    BNBNode * makeNode(const Box<FT>& box) {
+        BNBNode* node = new BNBNode;
+        BNCSub<double>* sub = new BNCSub<double>();
+        sub->mBox = box;
+        node->mData = sub;
+        return node;
+    }
+    CutFactory<FT>* mCutFactory;
+    CutApplicator<FT>* mCutApplicator;
+    int mCutLookupDepth;
+
+
+};
+
+
+#endif	/* BNCSOLVER_HPP */
+

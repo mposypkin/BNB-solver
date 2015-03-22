@@ -1,0 +1,80 @@
+[
+ <command>
+ <name>PUT_PROBLEM_DSC</name>
+ <id>1</id>
+ <description>
+   <glob>
+     <objective>
+       <molec>
+         <natoms>20</natoms>
+         <dim>3</dim>
+         <potent>
+           <mors>14</mors>
+         </potent>
+       </molec>
+     </objective>
+     <box>
+       <dim>60</dim>
+       <a>-5.</a>
+       <b>5.</b>
+     </box>
+   </glob>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>CREATE_SOLVER</name>
+ <id>4</id>
+ <description>
+  <sloc>
+  <localsearch>
+  <basinhop>
+  <nhop>32</nhop>
+  <ampl>0.8</ampl>
+  <localsearch>
+  <lbfgs>
+  <eps>0.001</eps>
+  </lbfgs>
+  </localsearch>
+  </basinhop>
+  </localsearch>
+  </sloc>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>SOLVE</name>
+ <id>5</id>
+ <description></description>
+ </command>
+]
+[
+<command>
+  <name>PUT_SOLUTIONS</name>
+  <id>7</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description>
+
+<solu><x>0.505 0.627 0.685 0.205 0.375 0.046 0.906 0.881 0.018 0.002 0.620 0.887 0.565 0.886 0.448 0.847 0.324 0.075 0.842 0.470 0.923 0.441 0.132 0.906 0.358 0.650 0.773 0.597 0.785 0.382 0.112 0.569 0.752 0.279 0.900 0.019 0.134 0.318 0.840 0.126 0.716 0.861 0.522 0.692 0.603 0.111 0.626 0.432 0.330 0.930 0.685 0.393 0.929 0.843 0.643 0.986 0.619 0.791 0.058 0.058 0.435 0.474 0.729 0.127 0.668 0.330 0.767 0.479 0.543 0.920 0.325 0.197 0.302 0.366 0.085 0.968 0.713 0.803 0.935 0.633 0.513 0.608 0.454 0.073 0.422 0.400 0.820 0.121 0.930 0.905 0.520 0.483 0.962 0.388 0.006 0.040 0.097 0.233 0.740 0.770 0.931 0.806 0.300 0.698 0.218 0.032 0.648 0.759 0.220 0.313 0.701 0.020 0.338 0.861 0.044 0.885 0.227 0.197 0.526 0.669 </x><f>0</f></solu>
+
+  </description>
+</command>
+]
+[
+ <command>
+ <name>START_SOLVE</name>
+ <id>8</id>
+ <description></description>
+ <code>
+  drop
+ </code>
+ </command>
+]
+
+
+

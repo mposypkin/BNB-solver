@@ -1,0 +1,54 @@
+[
+ <command>
+ <name>PUT_PROBLEM_DSC</name>
+ <id>1</id>
+ <description>BOOL_1DIM_KNAPSACK</description>
+ </command>
+]
+[
+ <command>
+ <name>PUT_PROBLEM_DATA</name>
+ <id>2</id>
+ <description>5 2 2 2 2 2 2 2 2 2 2 5</description>
+ </command>
+]
+[
+ <command>
+ <name>PUT_SOLVER_CFG</name>
+ <id>3</id>
+ <description>MVT=-1</description>
+ </command>
+]
+[
+ <command>
+ <name>CREATE_SOLVER</name>
+ <id>4</id>
+ <description>CLMS_SOLVER</description>
+ </command>
+]
+[
+ <command>
+ <name>SOLVE</name>
+ <id>5</id>
+ <description></description>
+ </command>
+]
+[
+ <command>
+ <name>PUT_SETS</name>
+ <id>6</id>
+ <description>TOP</description>
+ </command>
+]
+[
+ <command>
+ <name>EXIT</name>
+ <id>7</id>
+ <description></description>
+ </command>
+]
+
+
+
+
+

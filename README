@@ -1,0 +1,8 @@
+To build the project
+1. Modify all.inc 
+2. Type
+   make dep
+   make
+===
+
+

@@ -1,0 +1,233 @@
+ //~ -*- coding: utf-8 -*-
+#ifndef __BASINHOP__
+#define __BASINHOP__
+
+#include <stdlib.h>
+#include <math.h>
+#include <problems/optlib/locoptim.hpp>
+#include <util/common/bnblog.hpp>
+#include <util/common/randomstep.hpp>
+#include "apf.hpp"
+
+#define epsilon 0.05
+
+template <typename FT> class Basinhop : public  LocalOptimizer <FT>{
+public:
+    
+	/**
+	* The constructor
+	*/
+	Basinhop(){
+		mAux = NULL;
+		mBest = NULL;
+		mOpt = NULL;
+		//~ mAPF = &BoltzmannAcceptProbabilityFunction<FT>();
+		//~ mRS = &UniformSphere();
+		//~ mTempSched = &ConstSchedule<FT>();
+		mAPF = NULL;
+		mRS = NULL;
+		mTempSched = NULL;
+		mRangeSched = NULL;
+		
+		l_bound  = NULL;
+		u_bound = NULL;
+	}
+
+	~Basinhop(){
+		if(mAux)
+			free(mAux);
+	}
+
+
+	/**
+	* Retrieve objective
+	* @return objective
+	*/
+	Objective<FT>* getObjective()
+	{
+		return mOpt->getObjective();
+	}
+
+
+	/**
+	* Perform search
+	* @param x start point and result
+	* @param v 
+	* @return true if search converged and false otherwise
+	*/
+	bool search(FT* x, FT* v){
+
+		int n, nos,nof,step_count, noob; // Number_of_success, number_of_failure
+		FT vbest,very_best;
+		FT ampl = init_step_length;
+		FT rand_num;
+		FT T = mAPF->getParam();
+		Objective<FT>* obj;
+
+		obj = mOpt->getObjective();      
+		vbest = obj->func(x);
+		very_best = vbest;
+		n = obj->getDim();
+		nos = 0;
+		nof = 0;
+		step_count = 0;
+		noob = 0;
+		for(int i = 0; i < mNumberOfStarts; i ++) {
+			step_count++;
+			mRS->next(n,x,ampl,mAux);
+			//~ while(!check_bounds(mAux)){
+				//~ mRS->next(n,x,ampl,mAux);
+				//~ std::cout << "Out of bounds" << std::endl;
+				//~ noob++;
+			//~ };
+			if(mOpt->search(mAux, v)) {
+				if(*v < vbest) {
+					FT d = 0.;
+					for(int j = 0; j < n; j ++) {
+						FT r = x[j] - mAux[j];
+						d += r * r;
+					};
+					for(int j = 0; j < n; j ++) {
+						x[j] = mAux[j];
+					};
+					mLog <<"BH: "<< ":improved from " << vbest << " to " << *v <<", d = " << sqrt(d) << "\n";
+					mLog.write();
+					nos ++;
+					vbest = *v;
+					if (vbest < very_best){
+						very_best = vbest;
+						for(int j = 0; j < n; j ++) {
+							mBest[j] = x[j];
+						};
+					}
+					i = 0;
+				} else {
+					nof++;
+					FT d = 0.;
+					for(int j = 0; j < n; j ++) {
+						FT r = x[j] - mAux[j];
+						d += r * r;
+					}
+					if (d > epsilon){
+						rand_num = ((double)rand())/ ((double)RAND_MAX);
+						FT th = mAPF->prob(*v-vbest);
+						if (rand_num < th){
+							for(int j = 0; j < n; j ++) {
+								x[j] = mAux[j];
+							}
+							mLog <<"BH: " << "worsened from " << vbest << " to " << *v <<", d = " << sqrt(d) << "\n";
+							mLog <<"BH: " << "random number:  " << rand_num << " ;threshold: " << th << "\n";
+							mLog.write();
+							vbest = *v;
+							//~ i = 0;
+						}
+					}
+					
+				}
+			} else {          
+				mLog << "BH: " << ": Failed to improve locally.\n";
+				mLog.write();
+			}
+			T = mTempSched->getParam (step_count, nos, nof, x, vbest, T);
+			mAPF->setParam(T);
+			ampl = mRangeSched->getParam (step_count, nos, nof, x, vbest, ampl);
+		}
+		
+		mLog <<"BH: " << "Local search initiated " << step_count << " times\n";
+		mLog <<"BH: " << "Out of bounds steps taken: " << noob << "\n";
+		mLog << "==================\n";
+		mLog.write();
+		*v = very_best;
+		for(int j = 0; j < n; j ++) {
+			x[j] = mBest[j];
+		}
+		return (nos != 0);
+
+	}
+
+	/**
+	* Set up number of search starts
+	* @param n number of starts
+	*/
+	void setNumberOfStarts(int n){
+		mNumberOfStarts = n;
+	}
+
+
+	/**
+	* Set up local optimizer
+	* @param  opt optimizer to set
+	*/
+	void setLocalOptimizer(LocalOptimizer<FT>* opt){
+		mOpt = opt;
+		mDim = mOpt->getObjective()->getDim();
+		mAux = (FT*) realloc(mAux, mDim * sizeof(FT));
+		mBest = (FT*) realloc(mBest, mDim * sizeof(FT));
+		l_bound = (FT*) realloc(l_bound, mDim * sizeof(FT));
+		u_bound = (FT*) realloc(u_bound, mDim * sizeof(FT));
+		for(int j = 0; j < mDim; ++j){
+			l_bound[j] = -1.0;
+			u_bound[j] = 1.0;
+		};
+		
+	}
+
+	/**
+	* Set up accept probability function
+	* @param apf APF to set
+	*/
+	void setAcceptProbabilityFunction(AcceptProbabilityFunction<FT>* apf){
+		mAPF = apf;
+	}
+	
+	void setTemperatureSchedule(Schedule<FT>* s){
+		mTempSched = s;
+	}
+	
+	void setRangeSchedule(Schedule<FT>* s){
+		mRangeSched = s;
+	}
+	
+	void setRandomStep(RandomStep<FT>* RS){
+		mRS = RS;
+	}
+	
+	void setInitStepLength(FT isl){
+		init_step_length = isl;
+	}
+	
+	//~ void setStatParams(FT min_, FT max_, int NumOfLengths){
+		//~ min_sl = min_;
+		//~ max_sl = max_
+		//~ mNumOfLengths = NumOfLengths;
+	//~ }	
+	
+	bool check_bounds(FT* x){
+		for(int j = 0; j < mDim; ++j){
+			if (x[j] < l_bound[j])
+				return false;
+			if (x[j] > u_bound[j])
+				return false;
+		};
+		return true;
+	};
+	
+
+private:
+	int mNumberOfStarts;
+	FT init_step_length,mDim;
+	LocalOptimizer<FT>* mOpt;
+	AcceptProbabilityFunction <FT>* mAPF;
+	Schedule <FT>* mTempSched;
+	Schedule <FT>* mRangeSched;
+	RandomStep<FT> * mRS;
+
+	BNBLog <BNB_NO_LOGGING> mLog;
+	FT *mAux;  
+	FT *mBest;
+	FT *l_bound,;
+	FT *u_bound;
+};
+
+
+#endif

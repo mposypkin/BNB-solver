@@ -1,0 +1,93 @@
+[
+ <command>
+  <name>DUMMY</name>
+   <code>
+   var SINCUM;
+   set $SINCUM "save @description /tmp/incumbent.xml";
+   var ONFINISH;
+   set $ONFINISH "exit";
+   </code>
+</command>
+]
+
+[
+ <command>
+ <name>PUT_PROBLEM_DSC</name>
+ <id>1</id>
+ <description>
+   <glob>
+     <objective>
+       <molec>
+         <natoms>20</natoms>
+         <dim>3</dim>
+         <potent>
+           <mors>14</mors>
+         </potent>
+       </molec>
+     </objective>
+     <box>
+       <dim>60</dim>
+       <a>-5.</a>
+       <b>5.</b>
+     </box>
+   </glob>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>CREATE_SOLVER</name>
+ <id>4</id>
+ <description>
+   <msheur>
+     <branchp>0</branchp>
+     <heuristic>
+       <pmbh>
+         <nhop>92</nhop>
+         <ampl>0.9</ampl>
+         <localsearch>
+           <lbfgs>
+             <eps>0.001</eps>
+           </lbfgs>
+         </localsearch>
+       </pmbh>
+     </heuristic>
+   </msheur>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>SOLVE</name>
+ <id>5</id>
+ <description></description>
+ <code>forward</code>
+ </command>
+]
+[
+<command>
+  <name>PUT_SOLUTIONS</name>
+  <id>7</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description>
+  <solu><x>0.045 0.654 0.329 0.860 0.679 0.126 0.136 0.817 0.294 0.281 0.881 0.541 0.820 0.668 0.483 0.175 0.597 0.536 0.695 0.421 0.866 0.492 0.948 0.122 0.000 0.194 0.068 0.761 0.126 0.422 0.986 0.897 0.894 0.693 0.080 0.794 0.434 0.845 0.046 0.233 0.486 0.421 0.664 0.413 0.451 0.855 0.606 0.625 0.639 0.363 0.647 0.285 0.383 0.416 0.579 0.585 0.129 0.071 0.512 0.312 </x><f>0</f></solu>
+  </description>
+  <code>drop</code>
+</command>
+]
+[
+ <command>
+ <name>START_SOLVE</name>
+ <id>8</id>
+ <description></description>
+ <code>
+  drop
+ </code>
+ </command>
+]
+
+
+

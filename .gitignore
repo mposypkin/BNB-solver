@@ -1,0 +1,24 @@
+#Mac OS X files
+.DS_Store
+
+#bin files
+*.a
+*.o
+*.exe
+
+#temporary files
+deps.inc
+*.cache
+*~
+
+#Eclipse files
+.cproject
+.project
+
+#netbeans files
+nbproject/
+Makefile-bnb.mk
+
+#other
+doc/
+

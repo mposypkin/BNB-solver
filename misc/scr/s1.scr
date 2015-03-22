@@ -1,0 +1,139 @@
+
+[
+ <command>
+ <name>DUMMY</name>
+ <id>0</id>
+ <description></description>
+ <code>
+  var BASE;
+  var DIR;
+  var INCUMBENT;
+  set $BASE tmp/molec/;
+  set $DIR $BASE;
+  cat $DIR @time;
+  echo $DIR;
+  mkdir $DIR;
+  set $INCUMBENT $DIR;
+  cat $INCUMBENT /incumbent.xml
+ </code>
+ </command>
+]
+[
+ <command>
+ <name>GET_SOLUTIONS</name>
+ <id>7</id>
+ <description></description>
+ <code>
+  var T;
+  set $T @time;
+  inc $T 60;
+  echo Init timer at @time !;
+  wait $T < @time;
+  echo Raised timer at @time !;
+  forward;
+  save @description /tmp/solutions1.txt
+ </code>
+ </command>
+]
+[
+  <command>
+ <name>PUT_PROBLEM_DSC</name>
+ <id>1</id>
+ <description>
+   <glob>
+     <objective>
+       <molec>
+         <natoms>20</natoms>
+         <dim>3</dim>
+         <potent>
+           <mors>14</mors>
+         </potent>
+       </molec>
+     </objective>
+     <box>
+       <dim>60</dim>
+       <a>-5.</a>
+       <b>5.</b>
+     </box>
+   </glob>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>CREATE_SOLVER</name>
+ <id>4</id>
+ <description>
+  <msheur>
+    <branchp>0</branchp>
+    <heuristic>
+      <pmbh>
+       <poolsize>1024</poolsize>
+       <nhops>16</nhops>
+       <hop>0.8</hop>
+       <dist>0.9</dist>
+       <localsearch>
+         <conjgrad>
+           <type>PR</type>
+           <eps>0.0001</eps>
+           <mi>10000</mi>
+           <linesearch>
+             <wolf>        
+               <eps>0.00005</eps>
+               <re>0.1</re>
+               <rho>0.05</rho>
+               <sigma>0.1</sigma> 
+             </wolf>
+           </linesearch>
+         </conjgrad>
+       </localsearch>
+      </pmbh>
+    </heuristic>
+  </msheur>
+ </description>
+ <code>forward</code>
+ </command>
+]
+[
+ <command>
+ <name>SOLVE</name>
+ <id>5</id>
+ <description></description>
+ <code>
+  var E;
+  set $E Misha;
+  echo Hello BNB-Grid from $E !;
+  forward
+ </code>
+ </command>
+]
+[
+<command>
+  <name>PUT_SOLUTIONS</name>
+  <id>7</id>
+  <type>ASYNC</type>
+  <status></status>
+  <description>TOP</description>
+  <code>
+   drop
+  </code>
+  <comment>
+   load @description /tmp/solutions.txt;
+   drop
+  </comment>
+</command>
+]
+[
+ <command>
+ <name>START_SOLVE</name>
+ <id>8</id>
+ <description></description>
+ <code>
+  drop
+ </code>
+ </command>
+]
+
+
+

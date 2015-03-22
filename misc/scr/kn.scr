@@ -1,0 +1,14 @@
+<[PUT_PROBLEM_DSC,1,,]{BOOL_1DIM_KNAPSACK}>
+<[PUT_PROBLEM_DATA,2,,]{30 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 31 }>
+<[CREATE_SOLVER,3,,]{CLMS_SOLVER}>
+<[PUT_SOLVER_CFG,4,,]{}>
+<[SOLVE,5,,]{}>
+<[PUT_SETS,6,,]{
+13
+31
+4
+4
+0
+2
+$**************00100000001*****
+}>
