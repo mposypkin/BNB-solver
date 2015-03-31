@@ -29,6 +29,9 @@ public:
                 CutUtils<FT>::ApplyCut(cut, b, nv);
             }
             u = nv;
+            if(u.empty()) {
+                break;
+            }
         }
         v.insert(v.end(), u.begin(), u.end());
     }

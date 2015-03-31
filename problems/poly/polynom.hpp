@@ -206,7 +206,6 @@ template <typename FT> class Polynom {
       */
     void fillIntervalMatrix(const FT* lbounds, const FT* ubounds, FT* varsm) const
     {
-      typename std::vector< MONOM >::const_iterator m;
       int n = mNvars;
       for(int i = 0; i < n; i ++) {
 	FT* vri = varsm + i * DEG_INTERVAL_MATRIX_ROW_LEN;

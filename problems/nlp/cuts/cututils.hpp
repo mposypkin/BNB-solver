@@ -94,7 +94,7 @@ public:
             }
             if (u >= 0)
                 rv = true;
-            else 
+            else
                 rv = false;
         } else {
             rv = true;
@@ -122,7 +122,8 @@ private:
                 FT h = sqrt(rq - q);
                 FT a = BNBMAX(cut.mC[i] - h, box.mA[i]);
                 FT b = BNBMIN(cut.mC[i] + h, box.mB[i]);
-                FT l = b - a;
+                FT l = (b - a) / (box.mB[i] - box.mA[i]);
+                //std::cout << "i = " << i << ", l = " << l << ", a = " << a << ", b = " << b << "\n";
                 if (l > lmax) {
                     imax = i;
                     lmax = l;
@@ -131,6 +132,7 @@ private:
                 }
             }
         }
+        //std::cout << "imax = " << imax << ", lmax = " << lmax << ", amax = " << amax << ", bmax = " << bmax << "\n";
         if (lmax > 0) {
             if (amax > box.mA[imax]) {
                 Box<FT> b(n);

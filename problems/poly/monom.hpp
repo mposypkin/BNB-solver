@@ -113,7 +113,7 @@ template <typename FT> class Monom {
 
 
     /**
-      * Parforms Partial derivation
+      * Performs Partial derivation
       * @param nvar variable to differentiate
       */
     void deriv(unsigned int nvar)  
@@ -131,6 +131,7 @@ template <typename FT> class Monom {
 	}
       }
     }
+    
     /**
      * Retrieve lower and upper bounds
      *

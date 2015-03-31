@@ -43,9 +43,12 @@ public:
         BNCSubPrinter<double> subprinter;
         for (; I < maxiters; I++) {
 #if 0            
-            std::cout << "step " << I << " ================\n";
+            std::cout << "step " << I << " ^^^^^^^^^^^^^^^^^^\n";
+#endif
+#if 0 
             std::cout << "Record = " << bnc.mRecord->getValue() << "\n";
             BNBTreeUtils::printTree(*bnc.mTree, subprinter);
+            std::cout << "step " << I << " vvvvvvvvvvvvvvvvvv\n";
 #endif            
 
             BNBNode* node = bnc.mTreeManager->get();
@@ -59,8 +62,13 @@ public:
             int cutd = 0;
             bv.push_back(sub->mBox);
             while (np && (cutd++ < mCutLookupDepth)) {
+#if 0
+                std::cout << "Cuts at node " << cutd << ":\n";
+#endif                
                 BNCSub<FT>* subp = (BNCSub<FT>*) np->mData;
                 applyCuts(subp->mCuts, bv);
+                if (bv.empty())
+                    break;
                 np = np->mParent;
             }
             if (bv.empty())
@@ -87,16 +95,22 @@ private:
 #if 0          
             for (auto c : cuts) {
                 std::cout << "Applying cuts: ";
-                std::cout << CutUtils<FT>::toString(c) << " to box " << BoxUtils::toString(b) << "\n";                
+                std::cout << CutUtils<FT>::toString(c) << " to box " << BoxUtils::toString(b) << "\n";
             }
 #endif
             mCutApplicator->ApplyCut(cuts, b, nv);
-#if 0            
-            for (auto bb : nv) {
-                std::cout << "Resulting boxes: ";
-                std::cout << BoxUtils::toString(bb) << "\n";
-                std::cout << ":::\n";
+#if 0       
+            if (nv.size() == 0) {
+                std::cout << "Total elimination\n";
+            } else if ((nv.size() == 1) && BoxUtils::isSameBox(b, nv.at(0))) {
+                std::cout << "no effect\n";
+            } else {
+                std::cout << "Resulting boxes: \n";
+                for (auto bb : nv) {
+                    std::cout << "Box: " << BoxUtils::toString(bb) << "\n";
+                }
             }
+
 #endif            
         }
         v = nv;

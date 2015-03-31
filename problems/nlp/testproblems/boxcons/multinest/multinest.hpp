@@ -24,7 +24,7 @@ public:
      * Constructor
      * 
      * @param n dimension
-     * coeff vector of coefficients
+     * @coeff vector of coefficients
      */
     MultiNestObj(int n, SmartArrayPtr<double>& coeff) {
         Objective<double>::setDim(n);

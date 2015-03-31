@@ -25,6 +25,8 @@
 #include <problems/nlp/testproblems/boxcons/rosenbrok/rosenbrok.hpp>
 #include <problems/nlp/testproblems/boxcons/rosenbrok/rosenbroksupp.hpp>
 #include <problems/nlp/testproblems/boxcons/rosenbrok/rosenbrokrefv.hpp>
+#include <problems/nlp/testproblems/boxcons/conmixture/cosmixture.hpp>
+#include <problems/nlp/testproblems/boxcons/conmixture/cosmixturesupp.hpp>
 
 #include "bncsolver.hpp"
 #include "bncstate.hpp"
@@ -60,8 +62,8 @@ private:
 void initBox(int n, Box<double>& box) {
     Box<double> nbox(n);
     for (int i = 0; i < n; i++) {
-        nbox.mA[i] = -30;
-        nbox.mB[i] = 40;
+        nbox.mA[i] = -1;
+        nbox.mB[i] = 1;
     }
     box = nbox;
 }
@@ -118,9 +120,16 @@ int main(int argc, char** argv) {
     MultinestEigenSupp esupp(coeff);
 #endif
 
+#if 0
+    CosMixture obj(N);
+    //RosenbrokLpzSupp lsupp;
+    CosMixtureEigenSupp esupp;
+#endif
+    
+    
     GradLocSearch gls(box, &obj);
 
-    LpzCutFactory<double> lfact(&rs, &lsupp, &obj, eps);
+//    LpzCutFactory<double> lfact(&rs, &lsupp, &obj, eps);
     EigenCutFactory<double> efact(&rs, &esupp, &obj, eps);
     UnconsCutFactory<double> ufact(&rs, &esupp, &obj, eps);
     ConvCutFactory<double> cfact(&rs, &esupp, &obj, &gls);
@@ -138,7 +147,7 @@ int main(int argc, char** argv) {
     fact.push(&ufact);
 #endif    
 
-#if 1
+#if 1                   
     fact.push(&cfact);
 #endif
 
@@ -155,6 +164,7 @@ int main(int argc, char** argv) {
     BNBTree tree(makeRootNode(N));
     BNBNode* root = tree.getRoot();
     WFSDFSManager manager;
+    manager.setOptions(WFSDFSManager::Options::DFS);
     manager.reg(root);
     BNCState<double> state(&tree, &manager, &rs);
 

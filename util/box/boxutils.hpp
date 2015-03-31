@@ -172,6 +172,30 @@ public:
         }
         return rv;        
     }
+
+    /**
+     * Checks whether two box identical
+     * @param bone first box
+     * @param btwo second box
+     * @return true in boxes are same
+     */
+    template <class FT> static bool isSameBox(const Box<FT> &bone, const Box<FT> &btwo) {
+        int n = bone.mDim;
+        BNB_ASSERT(n == btwo.mDim);
+        bool rv = true;
+        for (int i = 0; i < n; i++) {
+            if(bone.mA[i] != btwo.mA[i]) {
+                rv = false;
+                break;
+            } 
+            if(bone.mB[i] != btwo.mB[i]) {
+                rv = false;
+                break;
+            } 
+        }
+        return rv;        
+    }
+
     
     /**
      * Computes the projection of a point to a box 
