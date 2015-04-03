@@ -1,8 +1,7 @@
 ROOT = ../../../
-BINS = testcov.exe testsubbag.exe testseq.exe
-#BINS = testsubbag.exe
+BINS = testcov.exe testseq.exe
 EXTLIBS = $(ROOT)util/common/util.a
-TESTS = testcov.exe testsubbag.exe
+TESTS = testcov.exe 
 #LIBS = linal.a
 #OBJS = gauss.o
 

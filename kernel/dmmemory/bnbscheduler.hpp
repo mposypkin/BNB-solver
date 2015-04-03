@@ -51,7 +51,7 @@ public:
         static const int DATA_ARRIVED = 5;
         /**
          * Command arrived
-         * arguments: the  process that sent the command and the command
+         * arguments: the  process that sent the command, the command and its arguments
          */
         static const int COMMAND_ARRIVED = 6;
         /**
@@ -112,7 +112,7 @@ public:
         static const int SEND_SUB_AND_RECORDS = 3;
         /**
          * Send command
-         * arguments: command and destination process
+         * arguments: destination process, command and command's arguments
          */
         static const int SEND_COMMAND = 4;
         /**

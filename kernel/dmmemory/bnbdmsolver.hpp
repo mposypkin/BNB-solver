@@ -101,11 +101,14 @@ public:
                     event.mCode = BNBScheduler::Events::SEARCH_STRATEGY_SET;
                     break;
                 case BNBScheduler::Actions::SEND_COMMAND:
-                    dest = action.mArgs[0];
-                    command = action.mArgs[1];
                     typ = MessageTypes::COMMAND;
+                    dest = action.mArgs[0];
+                    command = action.mArgs[1];                    
                     binser << typ;
                     binser << command;
+                    for(int i = 0; i < MAX_ARGS; i ++) {
+                        binser << action.mArgs[i];
+                    }
                     mComm->send(binser, dest);
                     binser.reset();
                     event.mCode = BNBScheduler::Events::SENT;
@@ -168,6 +171,9 @@ public:
                         binser >> command;
                         event.mArgs[0] = r;
                         event.mArgs[1] = command;
+                        for(int i = 2; i < MAX_ARGS; i ++) {
+                            binser >> event.mArgs[i];
+                        }
                         cnt.recv_commands++;
                     } else if (code == MessageTypes::RECORDS) {
                         event.mCode = BNBScheduler::Events::DATA_ARRIVED;
