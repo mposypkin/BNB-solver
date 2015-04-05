@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <map>
+#include <iostream>
 #include "monom.hpp"
 #include "polynom.hpp"
 #include "util/common/bnberrcheck.hpp"
@@ -62,6 +63,7 @@ public:
         }
         nvars = idents.size();
         Monom<FT> mon(nvars, coe, deg);
+              
         return mon;
     }
 
@@ -99,6 +101,7 @@ public:
                 BNB_ERROR_REPORT("Unrecognized symbol in polynomial");
             }
         }
+        poly.alignMonoms();
     }
 
 private:

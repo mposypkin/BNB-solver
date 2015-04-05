@@ -19,7 +19,7 @@ class PolyUtil {
 public:
 
     /**
-     * Constructs polynome from a string in the following format:
+     * Constructs polynom from a string in the following format:
      *
      *  +5 x1^6 x2^7 - 3 x2^3 x3 + 4
      *

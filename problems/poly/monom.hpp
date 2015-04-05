@@ -36,8 +36,12 @@ template <typename FT> class Monom {
       BNB_ASSERT(nvars <= MAX_POLYNOM_VARS);
       mNvars = nvars;
       mCoe = coe;      
-      for(int i = 0; i < mNvars; i ++) {
+      int i = 0;
+      for(; i < mNvars; i ++) {
 	mDeg[i] = deg[i];
+      }
+      for(; i < MAX_POLYNOM_VARS; i ++) {
+          mDeg[i] = 0;
       }
     }
 
@@ -188,6 +192,14 @@ template <typename FT> class Monom {
        BNBInterval<FT>::mult(*lbound, *ubound, vri[ind + 3], vri[ind + 4], lbound, ubound);
        vri += DEG_INTERVAL_MATRIX_ROW_LEN;
      }
+   }
+   
+   /**
+    * Set number of variables
+    * @param nvars number of variables to set
+    */
+   void setNvars(int nvars) {
+       mNvars = nvars;
    }
 
   private:

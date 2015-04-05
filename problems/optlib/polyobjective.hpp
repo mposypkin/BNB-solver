@@ -8,7 +8,7 @@
   */
 template <typename FT> class PolyObjective : virtual public Objective <FT> {
   public:
-    typedef Polynom<FT> POLYNOM;
+    typedef Polynom<FT> POLYNOM;    
     /**
       * Constructor
       * @param poly polynomial
@@ -45,6 +45,35 @@ template <typename FT> class PolyObjective : virtual public Objective <FT> {
 	g[i] = mGrad[i].getValueCache(varsm);
       }
     }
+    
+    
+    /**
+     * Retrieve underline polynom
+     * @return underline polynom
+     */
+    POLYNOM* getPoly() {
+        return mPoly;
+    }
+    
+    /**
+     * Retrieve gradient vector
+     * @return gradient vector
+     */
+    POLYNOM* getGradient() {
+        return mGrad;
+    }
+    
+    
+    /**
+     * Retrieve Hessian
+     * @return hessian matrix as an array
+     */
+    POLYNOM (* getHessian())[MAX_POLYNOM_VARS] {
+        return mHess;
+    }
+    
+    
+    
   protected:
 
     POLYNOM *mPoly;
