@@ -12,9 +12,52 @@
 #include <problems/nlp/cuts/lpzsupp.hpp>
 #include <problems/optlib/polyobjective.hpp>
 
+/**
+ * The Supplier of Lipschitz constant for polynomials
+ */
+class PolyLpzSupp : public LpzSupplier <double> {
+public:
+
+    /**
+     * Constructor
+     * @param obj Polynomial objective
+     */
+    PolyLpzSupp(PolyObjective<double>* obj) {
+        mPolyObj = obj;
+    }
+
+    double getLpzConst(const Box<double>& box) {
+        double gl = 0, gu = 0;
+        int n = mPolyObj->getDim();
+        double* a = box.mA;
+        double* b = box.mB;
+        for (int i = 0; i < n; i++) {
+            double l, u;
+            mPolyObj->getGradient()[i].getBounds(a, b, &l, &u);
+            BNBInterval<double>::sqr(l, u, &l, &u);
+            gl += l;
+            gu += u;
+        }
+        return sqrt(gu);
+    }
+
+private:
+    PolyObjective<double>* mPolyObj;
+};
+
+
+
+/**
+ * The supplier for Eigenvector bounds for polynomials
+ * @param obj
+ */
 class PolyEigenSupp : public SpectrumBoundsSupplier<double> {
 public:
 
+    /**
+     * Constructor
+     * @param obj Polynomial objective
+     */
     PolyEigenSupp(PolyObjective<double>* obj) {
         mPolyObj = obj;
     }
@@ -50,6 +93,7 @@ public:
             *ub = emax;
     }
 
+    
 private:
 
     void fillHessBounds(const double* a, const double* b) {
