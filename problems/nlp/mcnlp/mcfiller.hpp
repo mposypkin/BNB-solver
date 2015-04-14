@@ -63,7 +63,7 @@ public:
                         break;
                     }
                 } else {
-                    if (BNBABS(cv) > mProp.mIneqConsEps) {
+                    if (BNBABS(cv) > mProp.mEqConsEps) {
                         ok = false;
                         break;
                     }                    

@@ -28,17 +28,17 @@ template <typename FT> struct NlpProblem {
         /**
          * Normal continuos variable
          */
-        static const unsigned char GENERIC = 0;
+        static const unsigned int GENERIC = 0;
         
         /**
          * Integral
          */
-        static const unsigned char INTEGRAL = 1;
+        static const unsigned int INTEGRAL = 1;
         
         /**
          * Boolean
          */
-        static const unsigned char BOOLEAN = 2;        
+        static const unsigned int BOOLEAN = 2;        
     };
     
     /**
@@ -60,7 +60,7 @@ template <typename FT> struct NlpProblem {
     /**
      * Characteristics of variables
      */
-    SmartArrayPtr<FT> mVariables;
+    std::vector<unsigned int> mVariables;
 };
 
 

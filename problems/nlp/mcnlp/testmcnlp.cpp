@@ -5,6 +5,7 @@
  * Created on October 19, 2014, 7:53 PM
  */
 #include <iostream>
+#include <problems/nlp/common/nlpproblem.hpp>
 #include "mcnlp.hpp"
 #include "mcfiller.hpp"
 
@@ -34,7 +35,7 @@ class Obj : public Objective <double>{
     }
     
     /**
-     * Computes objective function value x0^2 + x1 - 4 <= 0
+     * Computes objective function value x0 + x1 - 4 <= 0
      * @param x parametes
      * @return constraint value
      */
@@ -54,7 +55,7 @@ class ObjCons1 : public Objective <double>{
     }
     
     /**
-     * Computes constraint value x0^2 + x1 - 4 <= 0
+     * Computes constraint value 
      * @param x parametes
      * @return constraint value
      */
@@ -74,7 +75,7 @@ class ObjCons2 : public Objective <double>{
     }
     
     /**
-     * Computes constraint value x0^2 + x1 - 4 <= 0
+     * Computes constraint value 
      * @param x parametes
      * @return constraint value
      */
@@ -112,10 +113,10 @@ int main(int argc, char** argv) {
     prob.mCons.push_back(&cons1);
     prob.mCons.push_back(&cons2);
     prob.mObj = &obj;
-    prob.mVariables.alloc(2);
-    //prob.mVariables[0] = NlpProblem<double>::VariableTypes::GENERIC;
+    prob.mVariables.reserve(2);
+    //prob.mVariables.push_back(NlpProblem<double>::VariableTypes::GENERIC);
     prob.mVariables[0] = NlpProblem<double>::VariableTypes::INTEGRAL;
-    //prob.mVariables[1] = NlpProblem<double>::VariableTypes::GENERIC;
+    //prob.mVariables.push_back(NlpProblem<double>::VariableTypes::GENERIC);
     prob.mVariables[1] = NlpProblem<double>::VariableTypes::INTEGRAL;
     MCFiller<double> filler(&prob);
     MyStopper stopper(10000);
