@@ -79,6 +79,7 @@ int main(int argc, char** argv) {
     for (auto o : bv) {
         std::cout << BoxUtils::toString(o) << "\n";
     }
+#if 0
     for (auto o : bv) {
         CutUtils<double>::ApplyCut(cut, o, bv1);
     }
@@ -87,6 +88,8 @@ int main(int argc, char** argv) {
         std::cout << BoxUtils::toString(o) << "\n";
     }
     BNB_ASSERT(bv1.size() == 4);
+#endif
+    
     BasicCutApplicator<double> bca;
     std::vector< Box<double> > bv2;
     bca.ApplyCut(cuts, box, bv2);

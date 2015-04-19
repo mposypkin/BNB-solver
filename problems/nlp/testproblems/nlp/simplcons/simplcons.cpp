@@ -60,7 +60,7 @@ BNBNode* makeRootNode() {
  * 
  */
 int main(int argc, char** argv) {
-    double eps = 0.0001;
+    double eps = 0.01;
     double delta = 0;
     int ldepth = 1;
 

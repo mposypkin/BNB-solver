@@ -26,16 +26,48 @@ public:
         for (auto cut : cuts) {
             std::vector< Box<FT> > nv;
             for (auto b : u) {
-                CutUtils<FT>::ApplyCut(cut, b, nv);
+                applyCut(cut, b, nv);
             }
             u = nv;
-            if(u.empty()) {
+            if (u.empty()) {
                 break;
             }
         }
         v.insert(v.end(), u.begin(), u.end());
     }
 
+private:
+
+    void applyCut(const Cut<FT>& cut, const Box<FT>& box, std::vector< Box<FT> >& v) {
+        if (cut.mType == Cut<FT>::CutType::INNER_BALL) {
+#if 0
+            CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, v);
+#endif            
+#if 0            
+            CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, v);
+#endif            
+#if 1
+            if (!CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, v)) {
+                v.clear();
+                CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, v);
+            }
+#endif            
+#if 0
+            CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, v);
+            std::vector < Box < FT >> u;
+            for (auto b : v) {
+                CutUtils<FT>::ApplyInnerBallCutBoxed(cut, b, u);
+            }
+            v = u;
+#endif            
+        } else if (cut.mType == Cut<FT>::CutType::OUTER_BALL) {
+            CutUtils<FT>::ApplyOuterBallCut(cut, box, v);
+        } else if (cut.mType == Cut<FT>::CutType::LINEAR) {
+            CutUtils<FT>::ApplyLinearCut(cut, box, v);
+        } else if (cut.mType == Cut<FT>::CutType::TOTAL) {
+            /** DO NOTHING */
+        }
+    }
 };
 
 

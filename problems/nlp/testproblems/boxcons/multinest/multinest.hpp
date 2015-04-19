@@ -13,7 +13,7 @@
 /**
  * The function is a sum of a type
  * 
- *  sum c[i] * (x[i]^4 - 5 x^2 + 4)
+ *  sum c[i] * (x[i]^4 - 5 x[i]^2 + 4)
  *  where c is a vector of non-negative coefficients
  */
 

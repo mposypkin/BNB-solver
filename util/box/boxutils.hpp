@@ -6,6 +6,7 @@
 
 #include <math.h>
 #include <sstream>
+#include <vector>
 #include "util/common/utilmacro.hpp"
 #include "box.hpp"
 #include "util/common/segment.hpp"
@@ -139,14 +140,14 @@ public:
         int n = box.mDim;
         bool rv = true;
         for (int i = 0; i < n; i++) {
-            if(x[i] > box.mB[i]) {
+            if (x[i] > box.mB[i]) {
                 rv = false;
                 break;
-            } 
-            if(x[i] < box.mA[i]) {
+            }
+            if (x[i] < box.mA[i]) {
                 rv = false;
                 break;
-            } 
+            }
         }
         return rv;
     }
@@ -161,16 +162,16 @@ public:
         int n = bin.mDim;
         bool rv = true;
         for (int i = 0; i < n; i++) {
-            if(bin.mA[i] < bout.mA[i]) {
+            if (bin.mA[i] < bout.mA[i]) {
                 rv = false;
                 break;
-            } 
-            if(bin.mB[i] > bout.mB[i]) {
+            }
+            if (bin.mB[i] > bout.mB[i]) {
                 rv = false;
                 break;
-            } 
+            }
         }
-        return rv;        
+        return rv;
     }
 
     /**
@@ -184,47 +185,126 @@ public:
         BNB_ASSERT(n == btwo.mDim);
         bool rv = true;
         for (int i = 0; i < n; i++) {
-            if(bone.mA[i] != btwo.mA[i]) {
+            if (bone.mA[i] != btwo.mA[i]) {
                 rv = false;
                 break;
-            } 
-            if(bone.mB[i] != btwo.mB[i]) {
+            }
+            if (bone.mB[i] != btwo.mB[i]) {
                 rv = false;
                 break;
-            } 
+            }
         }
-        return rv;        
+        return rv;
     }
 
-    
     /**
      * Computes the projection of a point to a box 
      * @param x point to project
      * @param box box to project to
      */
-    template <class FT> static void project(FT* x, const Box<FT> &box){
-        int n = box.mDim;        
+    template <class FT> static void project(FT* x, const Box<FT> &box) {
+        int n = box.mDim;
         for (int i = 0; i < n; i++) {
-            if(x[i] > box.mB[i])
+            if (x[i] > box.mB[i])
                 x[i] = box.mB[i];
-            else if(x[i] < box.mA[i])
-                x[i] = box.mA[i];                
+            else if (x[i] < box.mA[i])
+                x[i] = box.mA[i];
         }
     }
-    
+
     /**
      * Copies box boundaries (must be of the same dimension)
      * @param sbox source box
      * @param dbox dest box
      */
-    template <class FT> static void copy(const Box<FT> &sbox, Box<FT> &dbox){
-        int n = sbox.mDim;   
-        BNB_ASSERT(n == dbox.mDim);        
+    template <class FT> static void copy(const Box<FT> &sbox, Box<FT> &dbox) {
+        int n = sbox.mDim;
+        BNB_ASSERT(n == dbox.mDim);
         for (int i = 0; i < n; i++) {
             dbox.mB[i] = sbox.mB[i];
             dbox.mA[i] = sbox.mA[i];
         }
     }
-};
+
+    /**
+     * Compute complement (list of boxes) of a box in a box
+     * @param sbox source box 
+     * @param cbox complementary box
+     * @param result resulting list of boxes (list = sbox \ cbox)
+     */
+    template <class FT> static void complement(const Box<FT> &sbox, const Box<FT> &cbox, std::vector< Box<FT> >& result) {
+        int n = sbox.mDim;
+        BNB_ASSERT(cbox.mDim == n);
+        Box<FT> box(n);
+        copy(sbox, box);
+        bool intersect = true;
+        for (int i = 0; i < n; i++) {
+            if ((cbox.mB[i] <= box.mA[i]) || (cbox.mA[i] >= box.mB[i])) {
+                intersect = false;
+            }
+        }
+        if (intersect) {
+            for (int i = 0; i < n; i++) {
+                if ((cbox.mB[i] <= box.mA[i]) || (cbox.mA[i] >= box.mB[i])) {
+                    BNB_ASSERT(false);
+                } else {
+                    if (cbox.mA[i] > box.mA[i]) {
+                        Box<FT> nbox(n);
+                        copy(box, nbox);
+                        nbox.mB[i] = cbox.mA[i];
+                        box.mA[i] = cbox.mA[i];
+                        result.push_back(nbox);
+                    }
+                    if (cbox.mB[i] < box.mB[i]) {
+                        Box<FT> nbox(n);
+                        copy(box, nbox);
+                        nbox.mA[i] = cbox.mB[i];
+                        box.mB[i] = cbox.mB[i];
+                        result.push_back(nbox);
+                    }
+                }
+            }
+        } else {
+            result.push_back(box);
+        }
+    }
+
+    /**
+     * Compute intersection of 2 boxes
+     * @param fbox 1st box
+     * @param sbox 2nd box
+     * @param result resulting box
+     * @return true if there is intersection
+     */
+    template <class FT> static bool intersect(const Box<FT> &fbox, const Box<FT> &sbox, Box<FT>& result) {
+        int n = fbox.mDim;
+        bool rv;
+        BNB_ASSERT(sbox.mDim == n);
+        BNB_ASSERT(result.mDim == n);
+        for (int i = 0; i < n; i++) {
+            result.mA[i] = BNBMAX(fbox.mA[i], sbox.mA[i]);
+            result.mB[i] = BNBMIN(fbox.mB[i], sbox.mB[i]);
+            if (result.mA[i] > result.mB[i]) {
+                rv = false;
+                break;
+            }
+        }
+        return rv;
+    }
+
+    /**
+     * Compute volume 
+     * @param box box
+     * @return  computed volume
+     */
+    template <class FT> static FT volume(const Box<FT> &box) {
+        int n = box.mDim;
+        FT v = 1;
+        for(int i = 0; i < n; i ++) {
+            v *= box.mB[i] - box.mA[i];
+        }
+        return v;
+    }
+    };
 #endif
 

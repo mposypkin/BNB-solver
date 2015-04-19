@@ -9,7 +9,7 @@ print "set yrange [-2:2]\n";
 while(<>) {
  if(/step .*/) {
    print("plot 100 with lines\n");
-   print("pause 1\n");
+   print("pause -1\n");
    print("unset object\n");
    $i=1;
  }

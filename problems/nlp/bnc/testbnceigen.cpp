@@ -27,6 +27,8 @@
 #include <problems/nlp/testproblems/boxcons/rosenbrok/rosenbrokrefv.hpp>
 #include <problems/nlp/testproblems/boxcons/conmixture/cosmixture.hpp>
 #include <problems/nlp/testproblems/boxcons/conmixture/cosmixturesupp.hpp>
+#include <problems/nlp/testproblems/boxcons/dejong/dejong.hpp>
+#include <problems/nlp/testproblems/boxcons/dejong/dejongsupp.hpp>
 
 #include "bncsolver.hpp"
 #include "bncstate.hpp"
@@ -63,7 +65,7 @@ void initBox(int n, Box<double>& box) {
     Box<double> nbox(n);
     for (int i = 0; i < n; i++) {
         nbox.mA[i] = -1;
-        nbox.mB[i] = 1;
+        nbox.mB[i] = 1  ;
     }
     box = nbox;
 }
@@ -107,7 +109,15 @@ int main(int argc, char** argv) {
     UnconsRecStore<double> rs(1000, N);
 
 
+    
+    
 #if 1
+    Dejong obj(N);
+    DejongLpzSupp lsupp;
+    DejongEigenSupp esupp;
+#endif
+
+#if 0
     Rosenbrok obj(N);
     RosenbrokLpzSupp lsupp;
     RosenbrokEigenSupp esupp;
@@ -129,25 +139,26 @@ int main(int argc, char** argv) {
     
     GradLocSearch gls(box, &obj);
 
-//    LpzCutFactory<double> lfact(&rs, &lsupp, &obj, eps);
+    LpzCutFactory<double> lfact(&rs, &lsupp, &obj, eps);
     EigenCutFactory<double> efact(&rs, &esupp, &obj, eps);
     UnconsCutFactory<double> ufact(&rs, &esupp, &obj, eps);
     ConvCutFactory<double> cfact(&rs, &esupp, &obj, &gls);
     CompCutFactory <double> fact;
-#if 0   
+
+#if 1
     fact.push(&lfact);
 #endif
 
-#if 1    
+#if 0
     fact.push(&efact);
 #endif    
 
 
-#if 1    
+#if 0    
     fact.push(&ufact);
 #endif    
-
-#if 1                   
+        
+#if 0                  
     fact.push(&cfact);
 #endif
 
