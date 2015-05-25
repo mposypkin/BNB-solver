@@ -1,7 +1,7 @@
-
 #include <mpi.h>
 #include <util/mplib/mpicommunicator.hpp>
 #include <kernel/dmmemory/simpsched.hpp>
+#include <kernel/dmmemory/adaptsched.hpp>
 #include <kernel/dmmemory/bnbdmsolver.hpp>
 #include <kernel/dmmemory/schedtracer.hpp>
 #include <problems/ssum/comssum/ssumutil.hpp>
@@ -54,7 +54,12 @@ int main(int argc, char** argv) {
     if (com.rank() == 0) {
         res.generateRoot();
     }
+#if 0
     SimpSched sched(com.size() * 8);
+#endif
+#if 1
+    AdaptSched sched(com.size(), 100, 10, 500, 50);
+#endif
     SchedTracer st(1, "/tmp");
     BNBDmSolver sol(&com, &sched, &res);
     sol.setStatsFileName("stats.log");

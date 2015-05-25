@@ -2,7 +2,7 @@
  * File:   smartcutapplicator.hpp
  * Author: medved
  *
- * Created on January 16, 2015, 9:57 PM
+ * Created on January 16, 2015, 9:57 PM 
  */
 
 #ifndef SMARTCUTAPPLICATOR_HPP
@@ -10,7 +10,8 @@
 
 #include <vector>
 
-#include "util/box/boxutils.hpp"
+#include <util/box/boxutils.hpp>
+#include <problems/nlp/common/nlpproblem.hpp>
 #include "cutapplicator.hpp"
 #include "cututils.hpp"
 
@@ -19,6 +20,37 @@
  */
 template <class FT> class SmartCutApplicator : public CutApplicator <FT> {
 public:
+
+    /** 
+     * Options 
+     */
+    struct Options {
+        /**
+         * Cut a ball from a box
+         */
+        static const unsigned int CUT_BALL_SIMPLE = 1;
+
+        /**
+         * Cut the maximal box inscribed in a ball from the box
+         */
+        static const unsigned int CUT_BALL_BOXED = 1 << 1;
+    };
+
+    /**
+     * Returns reference to options
+     * @return ref to options 
+     */
+    unsigned int& getOptions() {
+        return mOptions;
+    }
+
+    /**
+     * Constructor 
+     * @param vtypes a reference to the variable types (empty vector means all variables are generic)
+     */
+    SmartCutApplicator(const std::vector<unsigned int>& vtypes = std::vector<unsigned int>()) : mVTypes(vtypes) {
+        mOptions = Options::CUT_BALL_SIMPLE;
+    }
 
     void ApplyCut(const std::vector< Cut<FT> > &cuts, const Box<FT> &box, std::vector< Box<FT> > &v) {
         std::vector< Box<FT> > u;
@@ -40,34 +72,26 @@ private:
 
     void applyCut(const Cut<FT>& cut, const Box<FT>& box, std::vector< Box<FT> >& v) {
         if (cut.mType == Cut<FT>::CutType::INNER_BALL) {
-#if 0
-            CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, v);
-#endif            
-#if 0            
-            CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, v);
-#endif            
-#if 1
-            if (!CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, v)) {
-                v.clear();
+            if (mOptions == Options::CUT_BALL_SIMPLE) {
+                CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, mVTypes, v);
+            } else if (mOptions == Options::CUT_BALL_BOXED) {
                 CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, v);
-            }
-#endif            
-#if 0
-            CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, v);
-            std::vector < Box < FT >> u;
-            for (auto b : v) {
-                CutUtils<FT>::ApplyInnerBallCutBoxed(cut, b, u);
-            }
-            v = u;
-#endif            
+            } else if (mOptions == Options::CUT_BALL_SIMPLE | Options::CUT_BALL_BOXED)
+                if (!CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, mVTypes, v)) {
+                    v.clear();
+                    CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, v);
+                }
         } else if (cut.mType == Cut<FT>::CutType::OUTER_BALL) {
-            CutUtils<FT>::ApplyOuterBallCut(cut, box, v);
+            CutUtils<FT>::ApplyOuterBallCut(cut, box, mVTypes, v);
         } else if (cut.mType == Cut<FT>::CutType::LINEAR) {
-            CutUtils<FT>::ApplyLinearCut(cut, box, v);
+            CutUtils<FT>::ApplyLinearCut(cut, box, mVTypes, v);
         } else if (cut.mType == Cut<FT>::CutType::TOTAL) {
             /** DO NOTHING */
         }
     }
+
+    unsigned int mOptions;
+    const std::vector<unsigned int>& mVTypes;
 };
 
 

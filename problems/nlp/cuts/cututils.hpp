@@ -14,7 +14,10 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <limits>
 #include <util/box/boxutils.hpp>
+#include <problems/nlp/common/nlpproblem.hpp>
+
 #include "cut.hpp"
 
 template <class FT> class CutUtils {
@@ -108,15 +111,17 @@ public:
 
     /**
      * Cuts the ball from a rectangle (simple version)
-     * @param cut ball to cut
+     * @param cut ball to cut from a box
      * @param box box to apply cut
+     * @param vartypes types of variables (empty vector means all vars are generic)
      * @param v resulting vector
      * @return true if cut makes effect
      */
-    static bool ApplyInnerBallCutSimple(const Cut<FT>& cut, const Box<FT>& box, std::vector< Box<FT> >& v) {
+    static bool ApplyInnerBallCutSimple(const Cut<FT>& cut, const Box<FT>& box, const std::vector<unsigned int>& vartypes, std::vector< Box<FT> >& v) {
         int n = box.mDim;
-        FT lmax = 0, amax = 0, bmax = 0;
+        FT lmax = 0, amin = 0, bmax = 0;
         int imax;
+        /* Search for best dimension to divide */
         for (int i = 0; i < n; i++) {
             FT q = 0;
             for (int j = 0; j < n; j++) {
@@ -128,28 +133,40 @@ public:
             FT rq = cut.mR * cut.mR;
             if (q < rq) {
                 FT h = sqrt(rq - q);
+                /** Obsolete /
                 FT a = BNBMAX(cut.mC[i] - h, box.mA[i]);
                 FT b = BNBMIN(cut.mC[i] + h, box.mB[i]);
+                 */
+                FT a = cut.mC[i] - h;
+                FT b = cut.mC[i] + h;
+                if (!vartypes.empty()) {
+                    if (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
+                        a = floor(a);
+                        b = ceil(b);
+                    } else if (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN) {
+                        a = BNBBOOLFLOOR(a, FT);
+                        b = BNBBOOLCEIL(b, FT);                        
+                    }
+                }
                 FT l = (b - a) / (box.mB[i] - box.mA[i]);
-                //std::cout << "i = " << i << ", l = " << l << ", a = " << a << ", b = " << b << "\n";
                 if (l > lmax) {
                     imax = i;
                     lmax = l;
-                    amax = a;
+                    amin = a;
                     bmax = b;
                 }
             }
         }
-        //std::cout << "imax = " << imax << ", lmax = " << lmax << ", amax = " << amax << ", bmax = " << bmax << "\n";
+
         bool rv;
         if (lmax > 0) {
-            if (amax > box.mA[imax]) {
+            if (amin >= box.mA[imax]) {
                 Box<FT> b(n);
                 BoxUtils::copy(box, b);
-                b.mB[imax] = amax;
+                b.mB[imax] = amin;
                 v.push_back(b);
             }
-            if (bmax < box.mB[imax]) {
+            if (bmax <= box.mB[imax]) {
                 Box<FT> b(n);
                 BoxUtils::copy(box, b);
                 b.mA[imax] = bmax;
@@ -185,16 +202,22 @@ public:
 #endif        
 
         FT vc = FindMaxIntersection(cut, box, cbox);
-        
+
         //std::cout << " vs = " << vs << ", vc = " << vc << "\n";
 
-        /** TMP */
-        if ((vc > 0) && (vs / vc < 30))
+        if ((vc > 0) && (vs / vc < intrsctTresh(n)))
             BoxUtils::complement(box, cbox, v);
         else
             v.push_back(box);
-        /** TMP **/
 
+    }
+
+    /**
+     * Retrieve intersection treshold
+     * @return intersection treshold
+     */
+    static FT intrsctTresh(int n) {
+        return 10;
     }
 
     /**
@@ -253,17 +276,30 @@ public:
      * Apply outer ball cut to a box
      * @param cut cut to apply
      * @param box box to apply cut
+     * @param vartypes variable types
      * @param v resulting vector
      */
-    static void ApplyOuterBallCut(const Cut<FT>& cut, const Box<FT>& box, std::vector< Box<FT> >& v) {
+    static void ApplyOuterBallCut(const Cut<FT>& cut, const Box<FT>& box, const std::vector<unsigned int>& vartypes, std::vector< Box<FT> >& v) {
         int n = box.mDim;
         Box<FT> nbox(n);
         if (isIn(cut, box))
             return;
         for (int i = 0; i < n; i++) {
             FT a = cut.mC[i] - cut.mR;
+            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL)) {
+                a = ceil(a);
+            }
+            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN)) {
+                a = BNBBOOLCEIL(a, FT);
+            }
             nbox.mA[i] = BNBMAX(a, box.mA[i]);
             FT b = cut.mC[i] + cut.mR;
+            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL)) {
+                b = floor(b);
+            }
+            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN)) {
+                b = BNBBOOLFLOOR(b, FT);
+            }
             nbox.mB[i] = BNBMIN(b, box.mB[i]);
             if (nbox.mA[i] > nbox.mB[i]) {
                 return;
@@ -278,28 +314,45 @@ public:
      * @param box box to cut
      * @param v resulting vector
      */
-    static void ApplyLinearCut(const Cut<FT>& cut, const Box<FT>& box, std::vector< Box<FT> >& v) {
+    static void ApplyLinearCut(const Cut<FT>& cut, const Box<FT>& box, const std::vector<unsigned int>& vartypes, std::vector< Box<FT> >& v) {
         int n = box.mDim;
         Box<FT> nbox(n);
         FT u = cut.mR;
+        /** Find minimum of the linear function in a box **/
         for (int i = 0; i < n; i++) {
             u += (cut.mC[i] > 0) ? (cut.mC[i] * box.mA[i]) : (cut.mC[i] * box.mB[i]);
         }
+        /** if the minimum is >=0 the cut covers the whole box **/
         if (u >= 0)
             return;
 
+        /** Find intersection **/
         for (int i = 0; i < n; i++) {
             FT p = cut.mC[i];
+            FT a, b;
             if (p > 0) {
-                nbox.mA[i] = box.mA[i];
-                nbox.mB[i] = BNBMIN(box.mB[i], box.mA[i] - u / p);
+                a = box.mA[i];
+                b = BNBMIN(box.mB[i], box.mA[i] - u / p);
             } else if (p < 0) {
-                nbox.mA[i] = BNBMAX(box.mA[i], box.mB[i] - u / p);
-                nbox.mB[i] = box.mB[i];
+                a = BNBMAX(box.mA[i], box.mB[i] - u / p);
+                b = box.mB[i];
             } else {
-                nbox.mA[i] = box.mA[i];
-                nbox.mB[i] = box.mB[i];
+                a = box.mA[i];
+                b = box.mB[i];
             }
+            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL)) {
+                a = ceil(a);
+                b = floor(b);                
+            }
+            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN)) {
+                a = BNBBOOLCEIL(a, FT);
+                b = BNBBOOLFLOOR(b, FT);
+            }            
+            if(a <= b) {
+                nbox.mA[i] = a;
+                nbox.mB[i] = b;
+            } else 
+                return;
         }
         v.push_back(nbox);
     }

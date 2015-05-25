@@ -17,5 +17,8 @@
 
 #define BNBSGN(a) (((a) >= 0) ? 1 : -1)
 
+#define BNBBOOLFLOOR(a, T) ((a < 0) ? std::numeric_limits<T>::min() : ((a < 1) ? 0 : 1))
+
+#define BNBBOOLCEIL(a, T) ((a > 1) ? std::numeric_limits<T>::max() : ((a > 0) ? 1 : 0))
 
 #endif

@@ -40,7 +40,7 @@ public:
     
     /**
      * If the cut is a ball - it's ball radius. If the cut is 
-     * hyperplane c^t x + r >= 0
+     * hyperplane c^t x + r >= 0 it is 'r'
      */
     FT mR;
     

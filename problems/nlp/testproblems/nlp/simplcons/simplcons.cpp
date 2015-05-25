@@ -16,7 +16,7 @@
 #include <problems/nlp/cuts/dummyrecstore.hpp>
 #include <problems/nlp/poly/polysupp.hpp>
 #include <problems/nlp/cuts/eigencutfactory.hpp>
-#include "problems/nlp/cuts/compcutfactory.hpp"
+#include <problems/nlp/cuts/compcutfactory.hpp>
 #include <problems/nlp/cuts/smartcutapplicator.hpp>
 #include <util/tree/wfsdfsmanager.hpp>
 #include <problems/nlp/bnc/bncsolver.hpp>
@@ -113,6 +113,7 @@ int main(int argc, char** argv) {
 
     /* Setup solver */
     SmartCutApplicator<double> sca;
+    sca.getOptions() |= SmartCutApplicator<double>::Options::CUT_BALL_BOXED;
     BNCSolver<double> bnc(&fact, &sca, ldepth);
     BNBTree tree(makeRootNode());
     BNBNode* root = tree.getRoot();
