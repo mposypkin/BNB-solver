@@ -18,7 +18,7 @@
 #include "tracer.hpp"
 
 
-#define TRACE_RECORD_SIZE 14
+#define TRACE_RECORD_SIZE (3 + MAX_ARGS + 1 + MAX_ARGS + 2)
 
 #define STD_TRACE "STD"
 

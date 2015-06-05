@@ -106,7 +106,7 @@ public:
                     command = action.mArgs[1];                    
                     binser << typ;
                     binser << command;
-                    for(int i = 0; i < MAX_ARGS; i ++) {
+                    for(int i = 2; i < MAX_ARGS; i ++) {
                         binser << action.mArgs[i];
                     }
                     mComm->send(binser, dest);
