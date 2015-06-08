@@ -25,6 +25,7 @@
 #include <problems/nlp/cuts/unconsrecstore.hpp>
 #include <problems/optlib/gradboxdesc.hpp>
 #include <problems/nlp/bnc/bncsolver.hpp>
+#include <problems/nlp/bnc/stdboxsplitter.hpp>
 
 #include "polysupp.hpp"
 
@@ -54,7 +55,6 @@ void initBox(int n, Box<double>& box) {
     box = nbox;
 }
 #endif
-
 
 class MyStopper : public GradBoxDescent<double>::Stopper {
 public:
@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
     UnconsCutFactory<double> ufact(&rs, &esupp, &pobj, eps);
     ConvCutFactory<double> cfact(&rs, &esupp, &pobj, &gls);
     CompCutFactory <double> fact;
-    
+
     std::cout << "BP 1\n";
 #if 0   
     fact.push(&lfact);
@@ -160,7 +160,8 @@ int main(int argc, char** argv) {
     BNCSolver<double> bnc(&fact, &bca, ldepth);
 #else
     SmartCutApplicator<double> sca;
-    BNCSolver<double> bnc(&fact, &sca, ldepth);
+    StdBoxSplitter<double> splt;
+    BNCSolver<double> bnc(&fact, &sca, &splt, ldepth);
 #endif
 
 

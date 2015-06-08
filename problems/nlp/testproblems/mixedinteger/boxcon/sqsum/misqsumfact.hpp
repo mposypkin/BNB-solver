@@ -21,10 +21,8 @@
 
 /**
  * Generates an instance of scaled mixed integer sum of square problems
- *  sum (a * xi - 1)^2 -> min, where a >= 2 a scale factor
- *  -1 <= xi <= d, i =1,...,n
- *  d = floor(C/a), where C is a parameter controlling the number
- *  of integral nodes in a mesh MN = C / 2
+ *  x1^2 - x2^2 + x3^2 - ...
+ *  -d <= xi <= d, i =1,...,n
  */
 class MISqSumFactory {
 public:
@@ -32,14 +30,11 @@ public:
     /**
      * Constructor 
      * @param n number of dimensions
-     * @param mn number of nodes in a mesh by one side
-     * @param a the scale factor
+     * @param d box size
      */
-    MISqSumFactory(int n, int mn, double a) {
+    MISqSumFactory(int n, int d) {
         mN = n;
-        mMN = mn;
-        mA = a;
-        mD = floor(2 * mn / a);
+        mD = d;
         mPobj = createPobj();
         mProb = createProb();
     }
@@ -65,7 +60,8 @@ private:
         initBox(box);
         prob->mBox = box;
 
-        prob->mVariables.reserve(mN);
+        prob->mVariables.resize(mN);
+        
         /** Initilizing variables **/
         for (int i = 0; i < mN; i++)
             prob->mVariables[i] = NlpProblem<double>::VariableTypes::INTEGRAL;
@@ -77,7 +73,7 @@ private:
 
     void initBox(Box<double> &box) {
         for (int i = 0; i < mN; i++) {
-            box.mA[i] = -1;
+            box.mA[i] = -mD;
             box.mB[i] = mD;
         }
     }
@@ -96,21 +92,16 @@ private:
     std::string getPolyString() {
         std::ostringstream os;
         for (int i = 0; i < mN; i++) {
-            if(i != 0)
-                os << " + ";
-            os << mA * mA ;
+            if(i != 0) {                
+                os << ((i % 2) ? " - " : "+");
+            }
             os << " x" << i << "^2";
         }
-        for (int i = 0; i < mN; i++) {
-            os << " - " << 2 * mA ;
-            os << "x" << i ;
-        }
-        os << " + " << mN;
         return os.str();
     }
 
-    int mN, mMN;
-    double mA, mD;
+    int mN;
+    double mD;
     NlpProblem<double>* mProb;
     PolyObjective<double>* mPobj;
 };

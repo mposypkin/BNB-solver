@@ -145,10 +145,23 @@ public:
                         b = ceil(b);
                     } else if (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN) {
                         a = BNBBOOLFLOOR(a, FT);
-                        b = BNBBOOLCEIL(b, FT);                        
+                        b = BNBBOOLCEIL(b, FT);
                     }
                 }
-                FT l = (b - a) / (box.mB[i] - box.mA[i]);
+                /** Compute intersection **/
+                FT an = BNBMAX(a, box.mA[i]);
+                FT bn = BNBMIN(b, box.mB[i]);
+                
+                /** Check intersection **/
+                if(an > bn) 
+                    continue;
+                
+                /** Check elimination **/
+                if((a < box.mA[i]) && (b > box.mB[i])) 
+                    return true;
+                                       
+                
+                FT l = (bn - an) / (box.mB[i] - box.mA[i]);
                 if (l > lmax) {
                     imax = i;
                     lmax = l;
@@ -163,13 +176,13 @@ public:
             if (amin >= box.mA[imax]) {
                 Box<FT> b(n);
                 BoxUtils::copy(box, b);
-                b.mB[imax] = amin;
+                b.mB[imax] = BNBMIN(amin, b.mB[imax]);
                 v.push_back(b);
             }
             if (bmax <= box.mB[imax]) {
                 Box<FT> b(n);
                 BoxUtils::copy(box, b);
-                b.mA[imax] = bmax;
+                b.mA[imax] = BNBMAX(bmax, b.mA[imax]);
                 v.push_back(b);
             }
             rv = true;
@@ -286,18 +299,18 @@ public:
             return;
         for (int i = 0; i < n; i++) {
             FT a = cut.mC[i] - cut.mR;
-            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL)) {
+            if ((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL)) {
                 a = ceil(a);
             }
-            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN)) {
+            if ((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN)) {
                 a = BNBBOOLCEIL(a, FT);
             }
             nbox.mA[i] = BNBMAX(a, box.mA[i]);
             FT b = cut.mC[i] + cut.mR;
-            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL)) {
+            if ((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL)) {
                 b = floor(b);
             }
-            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN)) {
+            if ((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN)) {
                 b = BNBBOOLFLOOR(b, FT);
             }
             nbox.mB[i] = BNBMIN(b, box.mB[i]);
@@ -340,18 +353,18 @@ public:
                 a = box.mA[i];
                 b = box.mB[i];
             }
-            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL)) {
+            if ((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::INTEGRAL)) {
                 a = ceil(a);
-                b = floor(b);                
+                b = floor(b);
             }
-            if((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN)) {
+            if ((!vartypes.empty()) && (vartypes[i] == NlpProblem<FT>::VariableTypes::BOOLEAN)) {
                 a = BNBBOOLCEIL(a, FT);
                 b = BNBBOOLFLOOR(b, FT);
-            }            
-            if(a <= b) {
+            }
+            if (a <= b) {
                 nbox.mA[i] = a;
                 nbox.mB[i] = b;
-            } else 
+            } else
                 return;
         }
         v.push_back(nbox);

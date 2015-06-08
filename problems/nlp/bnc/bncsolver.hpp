@@ -16,6 +16,7 @@
 #include <problems/nlp/cuts/cutfactory.hpp>
 #include "bncstate.hpp"
 #include "bncsubprinter.hpp"
+#include "boxsplitter.hpp"
 
 template <class FT> class BNCSolver {
 public:
@@ -24,12 +25,14 @@ public:
      * Constructor
      * @param ca pointer to cut applicator
      * @param cf pointer to cut factory
+     * @param splt pointer to box splitter
      * @param clpd cut lookup depth (how long go up to the tree for cuts)
      */
-    BNCSolver(CutFactory<FT>* cf, CutApplicator<FT>* ca, int clpd = 1) {
+    BNCSolver(CutFactory<FT>* cf, CutApplicator<FT>* ca, BoxSplitter<FT>* splt, int clpd = 1) {
         mCutFactory = cf;
         mCutApplicator = ca;
         mCutLookupDepth = clpd;
+        mBoxSplitter = splt;
     }
 
     /**
@@ -78,9 +81,12 @@ public:
                 Box<FT> b0(n), b1(n), b2(n);
                 b0 = bv.at(0);
                 bv.pop_back();
+                /*
                 BoxUtils::divideByLongestEdge(b0, b1, b2);
                 bv.push_back(b1);
                 bv.push_back(b2);
+                 */
+                mBoxSplitter->split(b0, bv);
             }
             pushNewSubs(*bnc.mTreeManager, bv, node);
         }
@@ -133,6 +139,7 @@ private:
     }
     CutFactory<FT>* mCutFactory;
     CutApplicator<FT>* mCutApplicator;
+    BoxSplitter<FT>* mBoxSplitter;
     int mCutLookupDepth;
 
 

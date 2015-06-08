@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
     prob.mCons.push_back(&cons1);
     prob.mCons.push_back(&cons2);
     prob.mObj = &obj;
-    prob.mVariables.reserve(2);
+    prob.mVariables.resize(2);
     //prob.mVariables.push_back(NlpProblem<double>::VariableTypes::GENERIC);
     prob.mVariables[0] = NlpProblem<double>::VariableTypes::INTEGRAL;
     //prob.mVariables.push_back(NlpProblem<double>::VariableTypes::GENERIC);

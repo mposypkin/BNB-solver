@@ -72,6 +72,7 @@ int main(int argc, char** argv) {
     boxv.clear();
     CutUtils<double>::ApplyInnerBallCutSimple(cut, box, std::vector<unsigned int>{NlpProblem<double>::VariableTypes::BOOLEAN, NlpProblem<double>::VariableTypes::GENERIC}, boxv);
     std::cout << "Inner ball cut with boolean vars test II\n";
+    
     for (auto b : boxv) {
         std::cout << BoxUtils::toString(b);
         std::cout << "\n";

@@ -17,6 +17,7 @@
 #include "bncsolver.hpp"
 #include "bncstate.hpp"
 #include "bncsub.hpp"
+#include "stdboxsplitter.hpp"
 
 
 class Obj : public Objective <double> {
@@ -91,7 +92,8 @@ int main(int argc, char** argv) {
     BNCSolver<double> bnc(&fact, &bca, 1);
 #else
     SmartCutApplicator<double> sca;
-    BNCSolver<double> bnc(&fact, &sca, 1);
+    StdBoxSplitter<double> splt;
+    BNCSolver<double> bnc(&fact, &sca, &splt, 1);
 #endif
 
     

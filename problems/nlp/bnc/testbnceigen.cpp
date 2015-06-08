@@ -33,6 +33,7 @@
 #include "bncsolver.hpp"
 #include "bncstate.hpp"
 #include "bncsub.hpp"
+#include "stdboxsplitter.hpp"
 
 class MyStopper : public GradBoxDescent<double>::Stopper {
 public:
@@ -65,7 +66,7 @@ void initBox(int n, Box<double>& box) {
     Box<double> nbox(n);
     for (int i = 0; i < n; i++) {
         nbox.mA[i] = -1;
-        nbox.mB[i] = 1  ;
+        nbox.mB[i] = 1;
     }
     box = nbox;
 }
@@ -109,8 +110,8 @@ int main(int argc, char** argv) {
     UnconsRecStore<double> rs(1000, N);
 
 
-    
-    
+
+
 #if 1
     Dejong obj(N);
     DejongLpzSupp lsupp;
@@ -135,8 +136,8 @@ int main(int argc, char** argv) {
     //RosenbrokLpzSupp lsupp;
     CosMixtureEigenSupp esupp;
 #endif
-    
-    
+
+
     GradLocSearch gls(box, &obj);
 
     LpzCutFactory<double> lfact(&rs, &lsupp, &obj, eps);
@@ -157,7 +158,7 @@ int main(int argc, char** argv) {
 #if 0    
     fact.push(&ufact);
 #endif    
-        
+
 #if 0                  
     fact.push(&cfact);
 #endif
@@ -167,7 +168,8 @@ int main(int argc, char** argv) {
     BNCSolver<double> bnc(&fact, &bca, ldepth);
 #else
     SmartCutApplicator<double> sca;
-    BNCSolver<double> bnc(&fact, &sca, ldepth);
+    StdBoxSplitter<double> splt;
+    BNCSolver<double> bnc(&fact, &sca, &splt, ldepth);
 #endif
 
 

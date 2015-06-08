@@ -76,7 +76,7 @@ private:
                 CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, mVTypes, v);
             } else if (mOptions == Options::CUT_BALL_BOXED) {
                 CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, v);
-            } else if (mOptions == Options::CUT_BALL_SIMPLE | Options::CUT_BALL_BOXED)
+            } else if (mOptions == (Options::CUT_BALL_SIMPLE | Options::CUT_BALL_BOXED))
                 if (!CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, mVTypes, v)) {
                     v.clear();
                     CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, v);

@@ -20,6 +20,7 @@
 #include <problems/nlp/cuts/smartcutapplicator.hpp>
 #include <util/tree/wfsdfsmanager.hpp>
 #include <problems/nlp/bnc/bncsolver.hpp>
+#include <problems/nlp/bnc/stdboxsplitter.hpp>
 
 #define OBJECTIVE "x^2 + y^2"
 
@@ -88,7 +89,7 @@ int main(int argc, char** argv) {
     prob.mCons.push_back(&cons1);
     prob.mCons.push_back(&cons2);
     prob.mObj = obj;
-    prob.mVariables.reserve(2);
+    prob.mVariables.resize(2);
     prob.mVariables[0] = NlpProblem<double>::VariableTypes::GENERIC;
     prob.mVariables[1] = NlpProblem<double>::VariableTypes::GENERIC;
 
@@ -114,7 +115,8 @@ int main(int argc, char** argv) {
     /* Setup solver */
     SmartCutApplicator<double> sca;
     sca.getOptions() |= SmartCutApplicator<double>::Options::CUT_BALL_BOXED;
-    BNCSolver<double> bnc(&fact, &sca, ldepth);
+    StdBoxSplitter<double> splt;
+    BNCSolver<double> bnc(&fact, &sca, &splt, ldepth);
     BNBTree tree(makeRootNode());
     BNBNode* root = tree.getRoot();
     WFSDFSManager manager;
