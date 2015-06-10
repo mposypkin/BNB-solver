@@ -197,9 +197,10 @@ public:
      * Cuts the ball from a rectangle (Boxed based version)
      * @param cut ball to cut
      * @param box box to apply cut
+     * @param vart variable types
      * @param v resulting vector
      */
-    static void ApplyInnerBallCutBoxed(const Cut<FT>& cut, const Box<FT>& box, std::vector< Box<FT> >& v) {
+    static void ApplyInnerBallCutBoxed(const Cut<FT>& cut, const Box<FT>& box, const std::vector<unsigned int>& vart, std::vector< Box<FT> >& v) {
         int n = box.mDim;
         Box<FT> cbox(n);
         double vs = BoxUtils::volume(box);
@@ -214,7 +215,7 @@ public:
         double vc = BoxUtils::volume(isec);
 #endif        
 
-        FT vc = FindMaxIntersection(cut, box, cbox);
+        FT vc = FindMaxIntersection(cut, box, vart, cbox);
 
         //std::cout << " vs = " << vs << ", vc = " << vc << "\n";
 
@@ -238,17 +239,18 @@ public:
      * @param cut spherical cut
      * @param sbox box to reduce
      * @param ibox resulting box
+     * @param vart variable types
      * @return volume on intersection
      */
-    static FT FindMaxIntersection(const Cut<FT>& cut, const Box<FT>& sbox, Box<FT>& ibox) {
+    static FT FindMaxIntersection(const Cut<FT>& cut, const Box<FT>& sbox, const std::vector<unsigned int>& vart, Box<FT>& ibox) {
         FT v = 0;
         BNB_ASSERT(cut.mType == Cut<FT>::CutType::INNER_BALL);
         int n = sbox.mDim;
         BNB_ASSERT(ibox.mDim == n);
         BNB_ASSERT(cut.mC.size() == n);
         int maxit = 100;
-        FT x[n];
-
+        Box<FT> tbox(n);
+        
         /** Iterate Monte-Carlo **/
         for (int i = 0; i < maxit; i++) {
             FT u = 1;
@@ -262,6 +264,16 @@ public:
                     s = ((FT(rand()) / (FT) RAND_MAX)) * r;
                 FT a = cut.mC[j] - s;
                 FT b = cut.mC[j] + s;
+                if(!vart.empty()) {
+                    if(vart[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
+                        a = floor(a);
+                        b = ceil(b);
+                    }
+                    if(vart[i] == NlpProblem<FT>::VariableTypes::BOOLEAN) {
+                        a = BNBBOOLFLOOR(a, FT);
+                        b = BNBBOOLCEIL(b, FT);
+                    }
+                }
                 FT ar = BNBMAX(a, sbox.mA[j]);
                 FT br = BNBMIN(b, sbox.mB[j]);
                 if (ar >= br) {
@@ -269,15 +281,13 @@ public:
                     break;
                 } else
                     u *= br - ar;
-                x[j] = s;
+                tbox.mA[j] = ar;
+                tbox.mB[j] = br;
                 r = sqrt(r * r - s * s);
             }
             if (u > v) {
                 v = u;
-                for (int j = 0; j < n; j++) {
-                    ibox.mA[j] = cut.mC[j] - x[j];
-                    ibox.mB[j] = cut.mC[j] + x[j];
-                }
+                BoxUtils::copy(tbox, ibox);
             }
         }
 

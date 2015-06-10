@@ -248,14 +248,14 @@ public:
                 if ((cbox.mB[i] <= box.mA[i]) || (cbox.mA[i] >= box.mB[i])) {
                     BNB_ASSERT(false);
                 } else {
-                    if (cbox.mA[i] > box.mA[i]) {
+                    if (cbox.mA[i] >= box.mA[i]) {
                         Box<FT> nbox(n);
                         copy(box, nbox);
                         nbox.mB[i] = cbox.mA[i];
                         box.mA[i] = cbox.mA[i];
                         result.push_back(nbox);
                     }
-                    if (cbox.mB[i] < box.mB[i]) {
+                    if (cbox.mB[i] <= box.mB[i]) {
                         Box<FT> nbox(n);
                         copy(box, nbox);
                         nbox.mA[i] = cbox.mB[i];

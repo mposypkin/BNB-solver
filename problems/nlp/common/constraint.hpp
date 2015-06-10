@@ -29,11 +29,11 @@ template <class FT> struct Constraint  {
     }
     struct Types {
         /**
-         * If set the constraint in inequality
+         * If set the constraint in inequality g(x) <= 0 
          */
         static const unsigned int INEQUALITY_CONSTRAINT = 1;
         /**
-         * If set the constraint is equality 
+         * If set the constraint is equality h(x) = 0
          */
         static const unsigned int EQUALITY_CONSTRAINT = 1 << 1;
         /**

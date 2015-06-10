@@ -78,6 +78,8 @@ public:
             }
             boxv.push_back(b1);
             boxv.push_back(b2);
+        } else {
+            boxv.push_back(box);
         }
     }
 

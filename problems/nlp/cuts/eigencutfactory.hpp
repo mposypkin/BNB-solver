@@ -49,7 +49,7 @@ public:
         FT k;
         mSupp->getBounds(box, &k, NULL);
         
-        std::cout << "eigen k = " << k << " for a box " << BoxUtils::toString(box) << "\n";
+        //std::cout << "eigen k = " << k << " for a box " << BoxUtils::toString(box) << "\n";
 
 
         Cut<FT> cut;

@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     cut.mType = Cut<double>::CutType::INNER_BALL;
 
     boxv.clear();
-    CutUtils<double>::ApplyInnerBallCutBoxed(cut, box, boxv);
+    CutUtils<double>::ApplyInnerBallCutBoxed(cut, box, std::vector<unsigned int>{},boxv);
     std::cout << "Boxed inner ball cut test\n";
     for (auto b : boxv) {
         std::cout << BoxUtils::toString(b);
@@ -207,7 +207,7 @@ int main(int argc, char** argv) {
     box.mB[0] = 5;
     box.mB[1] = 3;
     Box<double> ibox(2);
-    double v = CutUtils<double>::FindMaxIntersection(cut, box, ibox);
+    double v = CutUtils<double>::FindMaxIntersection(cut, box, std::vector<unsigned int>{}, ibox);
     std::cout << BoxUtils::toString(ibox) << " with volume " << v << "\n";
     return 0;
 }

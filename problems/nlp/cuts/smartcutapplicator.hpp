@@ -75,11 +75,11 @@ private:
             if (mOptions == Options::CUT_BALL_SIMPLE) {
                 CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, mVTypes, v);
             } else if (mOptions == Options::CUT_BALL_BOXED) {
-                CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, v);
+                CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, mVTypes, v);
             } else if (mOptions == (Options::CUT_BALL_SIMPLE | Options::CUT_BALL_BOXED))
                 if (!CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, mVTypes, v)) {
                     v.clear();
-                    CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, v);
+                    CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, mVTypes, v);
                 }
         } else if (cut.mType == Cut<FT>::CutType::OUTER_BALL) {
             CutUtils<FT>::ApplyOuterBallCut(cut, box, mVTypes, v);
