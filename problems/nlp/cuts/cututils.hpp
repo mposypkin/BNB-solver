@@ -216,8 +216,9 @@ public:
 #endif        
 
         FT vc = FindMaxIntersection(cut, box, vart, cbox);
+        
+        //std::cout << "Max ball = " << BoxUtils::toString(cbox) << "\n";
 
-        //std::cout << " vs = " << vs << ", vc = " << vc << "\n";
 
         if ((vc > 0) && (vs / vc < intrsctTresh(n)))
             BoxUtils::complement(box, cbox, v);
@@ -248,7 +249,7 @@ public:
         int n = sbox.mDim;
         BNB_ASSERT(ibox.mDim == n);
         BNB_ASSERT(cut.mC.size() == n);
-        int maxit = 100;
+        int maxit = 10 * 2 ^ n;
         Box<FT> tbox(n);
         
         /** Iterate Monte-Carlo **/
@@ -265,11 +266,12 @@ public:
                 FT a = cut.mC[j] - s;
                 FT b = cut.mC[j] + s;
                 if(!vart.empty()) {
-                    if(vart[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
+                    if(vart[j] == NlpProblem<FT>::VariableTypes::INTEGRAL) {                        
                         a = floor(a);
                         b = ceil(b);
+                        //std::cout << i << ": j = " << j << ", a = " << a << ", b = " << b << "\n";
                     }
-                    if(vart[i] == NlpProblem<FT>::VariableTypes::BOOLEAN) {
+                    if(vart[j] == NlpProblem<FT>::VariableTypes::BOOLEAN) {
                         a = BNBBOOLFLOOR(a, FT);
                         b = BNBBOOLCEIL(b, FT);
                     }
