@@ -17,16 +17,16 @@
 template <class FT> class UnconsCutFactory : public CutFactory <FT> {
 public:
 
-
     /**
      * The counstructor 
      * @param rs the record storage
      * @param supp the supplier of Lipschitz constant
      * @param objc objective
+     * @param box initial feasible box
      * @param eps precision
      */
-    UnconsCutFactory(RecStore<FT>* rs, SpectrumBoundsSupplier<FT>*  supp, Objective<FT>* obj, FT eps = 0)
-    : mRecStore(rs), mSupp(supp), mObj(obj), mEps(eps) {
+    UnconsCutFactory(RecStore<FT>* rs, SpectrumBoundsSupplier<FT>* supp, Objective<FT>* obj, Box<FT>* box, FT eps = 0)
+    : mRecStore(rs), mSupp(supp), mObj(obj), mBox(box), mEps(eps) {
     }
 
     void getCuts(const Box<FT>& box, std::vector< Cut<FT> >& cuts) {
@@ -36,27 +36,31 @@ public:
         FT fv = mObj->func(z);
         mRecStore->update(fv, (FT*) z);
         FT fr = mRecStore->getValue();
-        FT k;
-        mSupp->getBounds(box, NULL, &k);
+
+        if (BoxUtils::isStrictSubBox(*mBox, box)) {
+            FT k;
+            mSupp->getBounds(box, NULL, &k);
 
 
-        Cut<FT> cut;
-        FT a = fv - fr + mEps;
-        if (k <= 0) {
-            cut.mType = Cut<FT>::CutType::TOTAL;
-        } else {
-            cut.mC = z;
-            cut.mR = sqrt(2 * a / k);
-            cut.mType = Cut<FT>::CutType::INNER_BALL;
+            Cut<FT> cut;
+            FT a = fv - fr + mEps;
+            if (k <= 0) {
+                cut.mType = Cut<FT>::CutType::TOTAL;
+            } else {
+                cut.mC = z;
+                cut.mR = sqrt(2 * a / k);
+                cut.mType = Cut<FT>::CutType::INNER_BALL;
+            }
+            cuts.push_back(cut);
         }
-        cuts.push_back(cut);
     }
 
 
 private:
-    SpectrumBoundsSupplier<FT>*  mSupp;
+    SpectrumBoundsSupplier<FT>* mSupp;
     RecStore<FT>* mRecStore;
     Objective<FT>* mObj;
+    Box<FT>* mBox;
     FT mEps;
 };
 

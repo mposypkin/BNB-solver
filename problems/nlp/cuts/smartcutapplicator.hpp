@@ -57,7 +57,16 @@ public:
         u.push_back(box);
         for (auto cut : cuts) {
             std::vector< Box<FT> > nv;
+            //TMP 
+            std::cout << "Apply cut " << CutUtils<FT>::toString(cut) << " to boxes\n";
             for (auto b : u) {
+                std::cout << BoxUtils::toString(b) << "\n";
+            }
+            std::cout << "End boxes\n";
+            // TMP
+            for (auto b : u) {
+                //TMP 
+                std::cout << "Apply to box " << BoxUtils::toString(b) << "\n";
                 applyCut(cut, b, nv);
             }
             u = nv;
@@ -71,11 +80,22 @@ public:
 private:
 
     void applyCut(const Cut<FT>& cut, const Box<FT>& box, std::vector< Box<FT> >& v) {
+        // TMP
+        std::cout << "In SmartCutApplicator::applyCut\n";
+        // TMP
+        if(CutUtils<FT>::isIn(cut, box)) 
+            return;
         if (cut.mType == Cut<FT>::CutType::INNER_BALL) {
             if (mOptions == Options::CUT_BALL_SIMPLE) {
                 CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, mVTypes, v);
             } else if (mOptions == Options::CUT_BALL_BOXED) {
+                // TMP
+                std::cout << "In SmartCutApplicator before ApplyInnerBallCutBoxed\n";
+                // TMP
                 CutUtils<FT>::ApplyInnerBallCutBoxed(cut, box, mVTypes, v);
+                // TMP
+                std::cout << "In SmartCutApplicator after ApplyInnerBallCutBoxed\n";
+                // TMP
             } else if (mOptions == (Options::CUT_BALL_SIMPLE | Options::CUT_BALL_BOXED))
                 if (!CutUtils<FT>::ApplyInnerBallCutSimple(cut, box, mVTypes, v)) {
                     v.clear();

@@ -76,7 +76,7 @@ public:
         return mRec;
     }
 
-    SmartArrayPtr<FT>& getX()  {
+    SmartArrayPtr<FT>& getX() {
         return mX;
     }
 
@@ -123,21 +123,23 @@ private:
 
     bool project(FT * x) {
         int n = mX.size();
-        for (int i = 0; i < n; i++) {
-            /**
-             * TMP solution - to be reworked completely
-             **/
-            FT p = x[i];
-            if (mNLP->mVariables[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
-                int pl = p;
-                if (p - (FT) pl > 0.5) {
-                    int pu = p + 1;
-                    p = BNBMIN((FT) pu, mNLP->mBox.mB[i]);
-                } else {
-                    p = BNBMAX((FT) pl, mNLP->mBox.mA[i]);
+        if (!mNLP->mVariables.empty()) {
+            for (int i = 0; i < n; i++) {
+                /**
+                 * TMP solution - to be reworked completely
+                 **/
+                FT p = x[i];
+                if (mNLP->mVariables[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
+                    int pl = p;
+                    if (p - (FT) pl > 0.5) {
+                        int pu = p + 1;
+                        p = BNBMIN((FT) pu, mNLP->mBox.mB[i]);
+                    } else {
+                        p = BNBMAX((FT) pl, mNLP->mBox.mA[i]);
+                    }
                 }
+                mTX[i] = p;
             }
-            mTX[i] = p;
         }
         bool ok = true;
         for (auto c : mNLP->mCons) {

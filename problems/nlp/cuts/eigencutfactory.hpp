@@ -25,7 +25,6 @@
 template <class FT> class EigenCutFactory : public CutFactory <FT> {
 public:
 
-
     /**
      * The counstructor 
      * @param rs the record storage
@@ -39,16 +38,19 @@ public:
 
     void getCuts(const Box<FT>& box, std::vector< Cut<FT> >& cuts) {
         int n = box.mDim;
+ 
         SmartArrayPtr<FT> z(n);
         BoxUtils::getCenter(box, (FT*) z);
         FT fv = mObj->func(z);
+ 
         mRecStore->update(fv, (FT*) z);
+ 
         SmartArrayPtr<FT> g(n);
         mObj->grad(z, g);
         FT fr = mRecStore->getValue();
         FT k;
         mSupp->getBounds(box, &k, NULL);
-        
+
         //std::cout << "eigen k = " << k << " for a box " << BoxUtils::toString(box) << "\n";
 
 

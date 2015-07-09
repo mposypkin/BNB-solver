@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
 
     LpzCutFactory<double> lfact(&rs, &lsupp, &obj, eps);
     EigenCutFactory<double> efact(&rs, &esupp, &obj, eps);
-    UnconsCutFactory<double> ufact(&rs, &esupp, &obj, eps);
+    UnconsCutFactory<double> ufact(&rs, &esupp, &obj, &box, eps);
     ConvCutFactory<double> cfact(&rs, &esupp, &obj, &gls);
     CompCutFactory <double> fact;
 

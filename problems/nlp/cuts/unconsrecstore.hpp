@@ -58,7 +58,7 @@ public:
         return mRec;
     }
 
-    SmartArrayPtr<FT>& getX() const {
+    SmartArrayPtr<FT>& getX() {
         return mX;
     }
 

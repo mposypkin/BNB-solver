@@ -151,16 +151,16 @@ public:
                 /** Compute intersection **/
                 FT an = BNBMAX(a, box.mA[i]);
                 FT bn = BNBMIN(b, box.mB[i]);
-                
+
                 /** Check intersection **/
-                if(an > bn) 
+                if (an > bn)
                     continue;
-                
+
                 /** Check elimination **/
-                if((a < box.mA[i]) && (b > box.mB[i])) 
+                if ((a < box.mA[i]) && (b > box.mB[i]))
                     return true;
-                                       
-                
+
+
                 FT l = (bn - an) / (box.mB[i] - box.mA[i]);
                 if (l > lmax) {
                     imax = i;
@@ -201,6 +201,9 @@ public:
      * @param v resulting vector
      */
     static void ApplyInnerBallCutBoxed(const Cut<FT>& cut, const Box<FT>& box, const std::vector<unsigned int>& vart, std::vector< Box<FT> >& v) {
+        // TMP
+        std::cout << "In ApplyInnerBallCutBoxed\n";
+        // TMP
         int n = box.mDim;
         Box<FT> cbox(n);
         double vs = BoxUtils::volume(box);
@@ -215,15 +218,28 @@ public:
         double vc = BoxUtils::volume(isec);
 #endif        
 
-        FT vc = FindMaxIntersection(cut, box, vart, cbox);
-        
-        //std::cout << "Max ball = " << BoxUtils::toString(cbox) << "\n";
+        FT vc = findMaxIntersection(cut, box, vart, cbox);
+        //FT vc = old_findMaxIntersection(cut, box, vart, cbox);
 
+        //TMP
+        std::cout << "Max box = " << BoxUtils::toString(cbox);
+        std::cout << " for cut " << toString(cut);
+        std::cout << " and box " << BoxUtils::toString(box) << "\n";
+        //TMP
 
         if ((vc > 0) && (vs / vc < intrsctTresh(n)))
             BoxUtils::complement(box, cbox, v);
         else
             v.push_back(box);
+
+        //TMP
+        std::cout << "Begin complement list: \n";
+
+        for (auto o : v) {
+            std::cout << BoxUtils::toString(o) << "\n";
+        }
+        std::cout << "End complement list: \n";
+        //TMP
 
     }
 
@@ -243,7 +259,7 @@ public:
      * @param vart variable types
      * @return volume on intersection
      */
-    static FT FindMaxIntersection(const Cut<FT>& cut, const Box<FT>& sbox, const std::vector<unsigned int>& vart, Box<FT>& ibox) {
+    static FT findMaxIntersection(const Cut<FT>& cut, const Box<FT>& sbox, const std::vector<unsigned int>& vart, Box<FT>& ibox) {
         FT v = 0;
         BNB_ASSERT(cut.mType == Cut<FT>::CutType::INNER_BALL);
         int n = sbox.mDim;
@@ -251,7 +267,83 @@ public:
         BNB_ASSERT(cut.mC.size() == n);
         int maxit = 10 * 2 ^ n;
         Box<FT> tbox(n);
-        
+        FT lowb[n];
+
+        /** Fill in lower bound **/
+        for (int i = 0; i < n; i++) {
+            lowb[i] = BNBMAX(0, BNBMAX(sbox.mA[i] - cut.mC[i], cut.mC[i] - sbox.mB[i]));
+        }
+        /** Compute reminder **/
+        FT qref = cut.mR * cut.mR;
+        for (int i = 0; i < n; i++)
+            qref -= lowb[i] * lowb[i];
+
+        if (qref <= 0)
+            return 0;
+
+        /** Iterate Monte-Carlo **/
+        for (int i = 0; i < maxit; i++) {
+            FT u = 1;
+            FT q = qref;
+            /** Compute random subbox and its volume **/
+            for (int j = 0; j < n; j++) {
+                FT s;
+
+                std::cout << " q before = " << q << "\n";
+                q += lowb[j] * lowb[j];
+                FT h = sqrt(q);
+                FT z = h - lowb[j];
+                BNB_ASSERT(z >= 0);
+                FT r;
+                if (j == n - 1)
+                    r = z;
+                else
+                    r = ((FT(rand()) / (FT) RAND_MAX)) * z;
+                s = lowb[j] + r;
+                q -= s * s;
+                std::cout << "s = " << s << ", q after  = " << q << "\n";
+                //BNB_ASSERT(q >= 0);
+                FT a = cut.mC[j] - s;
+                FT b = cut.mC[j] + s;
+                FT ar = BNBMAX(a, sbox.mA[j]);
+                FT br = BNBMIN(b, sbox.mB[j]);
+                if (ar >= br) {
+                    u = -1;
+                    break;
+                } else
+                    u *= br - ar;
+                //tbox.mA[j] = ar;
+                //tbox.mB[j] = br;
+                tbox.mA[j] = a;
+                tbox.mB[j] = b;
+            }
+            if (u > v) {
+                v = u;
+                BoxUtils::copy(tbox, ibox);
+            }
+        }
+
+        return v;
+
+    }
+
+    /**
+     * Find a box inside cut maximizing intersection with the reduced box
+     * @param cut spherical cut
+     * @param sbox box to reduce
+     * @param ibox resulting box
+     * @param vart variable types
+     * @return volume on intersection
+     */
+    static FT old_findMaxIntersection(const Cut<FT>& cut, const Box<FT>& sbox, const std::vector<unsigned int>& vart, Box<FT>& ibox) {
+        FT v = 0;
+        BNB_ASSERT(cut.mType == Cut<FT>::CutType::INNER_BALL);
+        int n = sbox.mDim;
+        BNB_ASSERT(ibox.mDim == n);
+        BNB_ASSERT(cut.mC.size() == n);
+        int maxit = 10 * 2 ^ n;
+        Box<FT> tbox(n);
+
         /** Iterate Monte-Carlo **/
         for (int i = 0; i < maxit; i++) {
             FT u = 1;
@@ -265,13 +357,13 @@ public:
                     s = ((FT(rand()) / (FT) RAND_MAX)) * r;
                 FT a = cut.mC[j] - s;
                 FT b = cut.mC[j] + s;
-                if(!vart.empty()) {
-                    if(vart[j] == NlpProblem<FT>::VariableTypes::INTEGRAL) {                        
+                if (!vart.empty()) {
+                    if (vart[j] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
                         a = floor(a);
                         b = ceil(b);
                         //std::cout << i << ": j = " << j << ", a = " << a << ", b = " << b << "\n";
                     }
-                    if(vart[j] == NlpProblem<FT>::VariableTypes::BOOLEAN) {
+                    if (vart[j] == NlpProblem<FT>::VariableTypes::BOOLEAN) {
                         a = BNBBOOLFLOOR(a, FT);
                         b = BNBBOOLCEIL(b, FT);
                     }
@@ -283,8 +375,10 @@ public:
                     break;
                 } else
                     u *= br - ar;
-                tbox.mA[j] = ar;
-                tbox.mB[j] = br;
+                //tbox.mA[j] = ar;
+                //tbox.mB[j] = br;
+                tbox.mA[j] = a;
+                tbox.mB[j] = b;
                 r = sqrt(r * r - s * s);
             }
             if (u > v) {

@@ -47,23 +47,29 @@ public:
         for (; I < maxiters; I++) {
 #if 1            
             std::cout << "step " << I << " ^^^^^^^^^^^^^^^^^^\n";
+            std::cout << "Record = " << bnc.mRecord->getValue() << "\n";
 #endif
 #if 0 
-            std::cout << "Record = " << bnc.mRecord->getValue() << "\n";
             BNBTreeUtils::printTree(*bnc.mTree, subprinter);
             std::cout << "step " << I << " vvvvvvvvvvvvvvvvvv\n";
 #endif            
+
 
             BNBNode* node = bnc.mTreeManager->get();
             if (node == NULL)
                 break;
             BNCSub<FT>* sub = (BNCSub<FT>*) node->mData;
+
+
             mCutFactory->getCuts(sub->mBox, sub->mCuts);
+
+
             std::vector< Box<FT> > bv;
             std::vector< Cut<FT> > cuts;
             BNBNode* np = node;
             int cutd = 0;
             bv.push_back(sub->mBox);
+            
             while (np && (cutd++ < mCutLookupDepth)) {
 #if 0
                 std::cout << "Cuts at node " << cutd << ":\n";
@@ -95,7 +101,7 @@ public:
 
 private:
 
-    void applyCuts(std::vector< Cut<FT> > &cuts, std::vector< Box<FT> > &v) {
+    void applyCuts(const std::vector< Cut<FT> > &cuts, std::vector< Box<FT> > &v) {
         std::vector< Box<FT> > nv;
         for (auto b : v) {
 #if 1          

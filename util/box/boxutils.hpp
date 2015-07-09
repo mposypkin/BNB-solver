@@ -175,6 +175,29 @@ public:
     }
 
     /**
+     * Checks whether box bin lies strictly inside bout
+     * (no common border points)
+     * @param bout outer box
+     * @param bin inner box
+     * @return true in bin is a subbox of bout
+     */
+    template <class FT> static bool isStrictSubBox(const Box<FT> &bout, const Box<FT> &bin) {
+        int n = bin.mDim;
+        bool rv = true;
+        for (int i = 0; i < n; i++) {
+            if (bin.mA[i] <= bout.mA[i]) {
+                rv = false;
+                break;
+            }
+            if (bin.mB[i] >= bout.mB[i]) {
+                rv = false;
+                break;
+            }
+        }
+        return rv;
+    }
+
+    /**
      * Checks whether two box identical
      * @param bone first box
      * @param btwo second box
