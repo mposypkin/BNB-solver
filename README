@@ -3,6 +3,7 @@ To build the project
 2. Type
    make dep
    make
+3. To test run 'make tests'
 ===
 
 
