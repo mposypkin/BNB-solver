@@ -9,14 +9,43 @@
 #include <problems/nlp/poly/polysupp.hpp>
 #include <problems/nlp/cuts/eigencutfactory.hpp>
 #include <problems/nlp/cuts/unconscutfactory.hpp>
-#include <problems/nlp/cuts/pointcutfactory.hpp>
+#include <problems/nlp/cuts/convcutfactory.hpp>
 #include <problems/nlp/cuts/compcutfactory.hpp>
 #include <problems/nlp/cuts/smartcutapplicator.hpp>
 #include <util/tree/wfsdfsmanager.hpp>
 #include <problems/nlp/bnc/bncsolver.hpp>
 #include <problems/nlp/bnc/stdboxsplitter.hpp>
+#include <problems/optlib/gradboxdesc.hpp>
+
 
 #include "polybc.hpp"
+
+class MyStopper : public GradBoxDescent<double>::Stopper {
+public:
+
+    bool stopnow(double xdiff, double fdiff, double gnorm, double fval, int n) {
+        return fdiff <= 0.0000001;
+    }
+};
+
+class GradLocSearch : public LocSearch<double> {
+public:
+
+    GradLocSearch(Box<double>& box, Objective<double>* obj) {
+        mLS = new GradBoxDescent<double>(box, new MyStopper);
+        mLS->setObjective(obj);
+    }
+
+    double search(double* x) {
+        double v;
+        mLS->search(x, &v);
+        return v;
+    }
+
+private:
+    GradBoxDescent<double>* mLS;
+
+};
 
 static BNBNode* makeRootNode(NlpProblem<double>& nlp) {
     BNBNode* node = new BNBNode;
@@ -35,7 +64,7 @@ int main(int argc, char** argv) {
     // Box size
     int d = 3;
     // Accuracy 
-    double eps = 0.1;
+    double eps = .01;
     // Cut analysis depth
     int ldepth = 1;
     // Use or not boxed cut or boxed cut together with normal cut
@@ -51,6 +80,8 @@ int main(int argc, char** argv) {
 
     PolyBCFactory polybcfact(n, d, argv[3]);
     NlpProblem<double>* nlp = polybcfact.getProb();
+    
+    std::cout << "Feasible set: " << BoxUtils::toString(nlp->mBox);
 
 #if 0    
     double x[n] = {2, 2};
@@ -67,14 +98,20 @@ int main(int argc, char** argv) {
     /* Setup eigen based cut factory*/
     EigenCutFactory<double> objEigenCutFact(&ors, &objEigenSupp, obj, eps);
 
-    /* Setup eigen based cut factory*/
+    /* Setup specialized unconstrained cut factory*/
     UnconsCutFactory<double> unconsCutFact(&ors, &objEigenSupp, obj, &(nlp->mBox), eps);
+    //UnconsCutFactory<double> unconsCutFact(&ors, &objEigenSupp, obj, NULL, eps);
 
+    /** Setup Convexity cut factory */
+    GradLocSearch gls(nlp->mBox, obj);
+
+    ConvCutFactory<double> convCutFact(&ors, &objEigenSupp, obj, &gls);
 
     /* Setup composite cut factory  */
     CompCutFactory <double> fact;
     fact.push(&objEigenCutFact);
-    fact.push(&unconsCutFact);
+    //fact.push(&unconsCutFact);
+    //fact.push(&convCutFact);
 
     /* Setup cut applicator */
     std::cout << "mVariables = " << nlp->mVariables.size() << "\n";
@@ -84,8 +121,8 @@ int main(int argc, char** argv) {
     if (boxedcut == 1)
         sca.getOptions() = SmartCutApplicator<double>::Options::CUT_BALL_BOXED;
     if (boxedcut == 2)
-        sca.getOptions() = (SmartCutApplicator<double>::Options::CUT_BALL_SIMPLE 
-                         | SmartCutApplicator<double>::Options::CUT_BALL_BOXED) ;
+        sca.getOptions() = (SmartCutApplicator<double>::Options::CUT_BALL_SIMPLE
+            | SmartCutApplicator<double>::Options::CUT_BALL_BOXED);
 
     /* Setup splitter */
     StdBoxSplitter<double> splt;

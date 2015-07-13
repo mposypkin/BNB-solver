@@ -45,7 +45,7 @@ public:
         long long int I = 0;
         BNCSubPrinter<double> subprinter;
         for (; I < maxiters; I++) {
-#if 1            
+#if 0            
             std::cout << "step " << I << " ^^^^^^^^^^^^^^^^^^\n";
             std::cout << "Record = " << bnc.mRecord->getValue() << "\n";
 #endif
@@ -104,14 +104,14 @@ private:
     void applyCuts(const std::vector< Cut<FT> > &cuts, std::vector< Box<FT> > &v) {
         std::vector< Box<FT> > nv;
         for (auto b : v) {
-#if 1          
+#if 0          
             for (auto c : cuts) {
                 std::cout << "Applying cuts: ";
                 std::cout << CutUtils<FT>::toString(c) << " to box " << BoxUtils::toString(b) << "\n";
             }
 #endif
             mCutApplicator->ApplyCut(cuts, b, nv);
-#if 1       
+#if 0       
             if (nv.size() == 0) {
                 std::cout << "Total elimination\n";
             } else if ((nv.size() == 1) && BoxUtils::isSameBox(b, nv.at(0))) {

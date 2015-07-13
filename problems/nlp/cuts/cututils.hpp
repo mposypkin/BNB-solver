@@ -201,9 +201,6 @@ public:
      * @param v resulting vector
      */
     static void ApplyInnerBallCutBoxed(const Cut<FT>& cut, const Box<FT>& box, const std::vector<unsigned int>& vart, std::vector< Box<FT> >& v) {
-        // TMP
-        std::cout << "In ApplyInnerBallCutBoxed\n";
-        // TMP
         int n = box.mDim;
         Box<FT> cbox(n);
         double vs = BoxUtils::volume(box);
@@ -221,25 +218,11 @@ public:
         FT vc = findMaxIntersection(cut, box, vart, cbox);
         //FT vc = old_findMaxIntersection(cut, box, vart, cbox);
 
-        //TMP
-        std::cout << "Max box = " << BoxUtils::toString(cbox);
-        std::cout << " for cut " << toString(cut);
-        std::cout << " and box " << BoxUtils::toString(box) << "\n";
-        //TMP
 
         if ((vc > 0) && (vs / vc < intrsctTresh(n)))
             BoxUtils::complement(box, cbox, v);
         else
             v.push_back(box);
-
-        //TMP
-        std::cout << "Begin complement list: \n";
-
-        for (auto o : v) {
-            std::cout << BoxUtils::toString(o) << "\n";
-        }
-        std::cout << "End complement list: \n";
-        //TMP
 
     }
 
@@ -282,31 +265,29 @@ public:
             return 0;
 
         /** Iterate Monte-Carlo **/
-        for (int i = 0; i < maxit; i++) {
+        for (int I = 0; I < maxit; I++) {
             FT u = 1;
             FT q = qref;
             /** Compute random subbox and its volume **/
-            for (int j = 0; j < n; j++) {
+            for (int i = 0; i < n; i++) {
                 FT s;
 
-                std::cout << " q before = " << q << "\n";
-                q += lowb[j] * lowb[j];
+                q += lowb[i] * lowb[i];
                 FT h = sqrt(q);
-                FT z = h - lowb[j];
+                FT z = h - lowb[i];
                 BNB_ASSERT(z >= 0);
                 FT r;
-                if (j == n - 1)
+                if (i == n - 1)
                     r = z;
                 else
                     r = ((FT(rand()) / (FT) RAND_MAX)) * z;
-                s = lowb[j] + r;
+                s = lowb[i] + r;
                 q -= s * s;
-                std::cout << "s = " << s << ", q after  = " << q << "\n";
                 //BNB_ASSERT(q >= 0);
-                FT a = cut.mC[j] - s;
-                FT b = cut.mC[j] + s;
-                FT ar = BNBMAX(a, sbox.mA[j]);
-                FT br = BNBMIN(b, sbox.mB[j]);
+                FT a = cut.mC[i] - s;
+                FT b = cut.mC[i] + s;
+                FT ar = BNBMAX(a, sbox.mA[i]);
+                FT br = BNBMIN(b, sbox.mB[i]);
                 if (ar >= br) {
                     u = -1;
                     break;
@@ -314,8 +295,8 @@ public:
                     u *= br - ar;
                 //tbox.mA[j] = ar;
                 //tbox.mB[j] = br;
-                tbox.mA[j] = a;
-                tbox.mB[j] = b;
+                tbox.mA[i] = a;
+                tbox.mB[i] = b;
             }
             if (u > v) {
                 v = u;

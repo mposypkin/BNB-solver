@@ -109,9 +109,6 @@ int main(int argc, char** argv) {
     // UnconsRecStore<double> rs((new MultinestRefValueProvider(coeff))->getRefValue(N), N);
     UnconsRecStore<double> rs(1000, N);
 
-
-
-
 #if 1
     Dejong obj(N);
     DejongLpzSupp lsupp;

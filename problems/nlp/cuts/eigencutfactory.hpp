@@ -38,13 +38,13 @@ public:
 
     void getCuts(const Box<FT>& box, std::vector< Cut<FT> >& cuts) {
         int n = box.mDim;
- 
+
         SmartArrayPtr<FT> z(n);
         BoxUtils::getCenter(box, (FT*) z);
         FT fv = mObj->func(z);
- 
+
         mRecStore->update(fv, (FT*) z);
- 
+
         SmartArrayPtr<FT> g(n);
         mObj->grad(z, g);
         FT fr = mRecStore->getValue();
@@ -56,7 +56,7 @@ public:
 
         Cut<FT> cut;
         if (k == 0) {
-            cut.mR = fv - fr + mEps;
+            cut.mR = fv - fr + mEps - VecUtils::vecDotProd(n, (FT*)g, (FT*)z);
             cut.mC = g;
             cut.mType = Cut<FT>::CutType::LINEAR;
         } else {

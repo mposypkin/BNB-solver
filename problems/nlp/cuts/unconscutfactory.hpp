@@ -22,10 +22,10 @@ public:
      * @param rs the record storage
      * @param supp the supplier of Lipschitz constant
      * @param objc objective
-     * @param box initial feasible box
+     * @param box initial feasible box (NULL means no box check - minimum is strictly inside)
      * @param eps precision
      */
-    UnconsCutFactory(RecStore<FT>* rs, SpectrumBoundsSupplier<FT>* supp, Objective<FT>* obj, Box<FT>* box, FT eps = 0)
+    UnconsCutFactory(RecStore<FT>* rs, SpectrumBoundsSupplier<FT>* supp, Objective<FT>* obj, const Box<FT>* box, FT eps = 0)
     : mRecStore(rs), mSupp(supp), mObj(obj), mBox(box), mEps(eps) {
     }
 
@@ -37,9 +37,13 @@ public:
         mRecStore->update(fv, (FT*) z);
         FT fr = mRecStore->getValue();
 
-        if (BoxUtils::isStrictSubBox(*mBox, box)) {
+        if ((mBox == NULL) || BoxUtils::isStrictSubBox(*mBox, box)) {
             FT k;
             mSupp->getBounds(box, NULL, &k);
+            
+            // TMP
+            // std::cout << " k = " << k << "\n";
+            // TMP
 
 
             Cut<FT> cut;
@@ -60,7 +64,7 @@ private:
     SpectrumBoundsSupplier<FT>* mSupp;
     RecStore<FT>* mRecStore;
     Objective<FT>* mObj;
-    Box<FT>* mBox;
+    const Box<FT>* mBox;
     FT mEps;
 };
 
