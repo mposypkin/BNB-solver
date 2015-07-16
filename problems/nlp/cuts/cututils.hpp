@@ -122,6 +122,7 @@ public:
         FT lmax = 0, amin = 0, bmax = 0;
         int imax;
         /* Search for best dimension to divide */
+        FT rq = cut.mR * cut.mR;
         for (int i = 0; i < n; i++) {
             FT q = 0;
             for (int j = 0; j < n; j++) {
@@ -130,7 +131,6 @@ public:
                     q += p * p;
                 }
             }
-            FT rq = cut.mR * cut.mR;
             if (q < rq) {
                 FT h = sqrt(rq - q);
                 /** Obsolete /
@@ -202,36 +202,121 @@ public:
      */
     static void ApplyInnerBallCutBoxed(const Cut<FT>& cut, const Box<FT>& box, const std::vector<unsigned int>& vart, std::vector< Box<FT> >& v) {
         int n = box.mDim;
-        Box<FT> cbox(n);
+        Box<FT> cbox1(n);
+        Box<FT> cbox2(n);
+
         double vs = BoxUtils::volume(box);
-#if 0        
-        double d = cut.mR / sqrt(n);
-        for (int i = 0; i < n; i++) {
-            cbox.mA[i] = cut.mC[i] - d;
-            cbox.mB[i] = cut.mC[i] + d;
+        FT vp = findPlainInnerBallIntersection(cut, box, vart, cbox1);
+        FT vc = findMaxIntersection(cut, box, vart, cbox2);
+
+        // TMP
+#if 0
+        std::cout << "\n======================\n";
+        std::cout << "vs = " << vs << ", vp = " << vp << ", vc = " << vc << "\n";
+
+        std::cout << "Cut: " << toString(cut) << "\n";
+        std::cout << "Source box: " << BoxUtils::toString(box);
+        std::cout << ", Plain box: " << BoxUtils::toString(cbox1);
+        std::cout << ", Maximal box: " << BoxUtils::toString(cbox2);
+        std::cout << "\n";
+#endif
+        // TMP
+
+
+        /** check whether assume plain cut instead of maximal cut **/
+        auto muchbigger = [] (double a, double b) {
+            return a >= 1.2 * b;
+        };
+
+        /** check whether it is worth to apply complement **/
+        auto muchreduce = [] (double sourcev, double complementv) {
+            return sourcev <= (8 * complementv);
+        };
+
+        Box<FT> cbox(n);
+        std::vector< Box<FT> > nv;
+        if (muchbigger(vc, vp)) {
+            if ((vc > 0) && muchreduce(vs, vc))
+                BoxUtils::complement(box, cbox2, nv);
+            else
+                nv.push_back(box);
+        } else {
+            if (vp > 0)
+                BoxUtils::complement(box, cbox1, nv);
+            else
+                nv.push_back(box);
         }
-        Box<double> isec(n);
-        bool rv = BoxUtils::intersect(box, cbox, isec);
-        double vc = BoxUtils::volume(isec);
-#endif        
-
-        FT vc = findMaxIntersection(cut, box, vart, cbox);
-        //FT vc = old_findMaxIntersection(cut, box, vart, cbox);
-
-
-        if ((vc > 0) && (vs / vc < intrsctTresh(n)))
-            BoxUtils::complement(box, cbox, v);
-        else
-            v.push_back(box);
-
+        /** respect integral bounds **/
+        auto integrify = [] (Box<FT>& box, const std::vector<unsigned int>& vart) {
+            int n = box.mDim;
+            for (int i = 0; i < n; i++) {
+                if (vart[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
+                    box.mA[i] = ceil(box.mA[i]);
+                    box.mB[i] = floor(box.mB[i]);
+                }
+            }
+        };
+        if (!vart.empty())
+            for (auto o : nv) {
+                integrify(o, vart);
+            }
+        v.insert(v.begin(), nv.begin(), nv.end());
     }
 
     /**
-     * Retrieve intersection treshold
-     * @return intersection treshold
+     * Finds basic intersection of an inner-ball cut and a box
+     * @param cut inner ball cut
+     * @param sbox source box
+     * @param vart variable types
+     * @param ibox resulting box
+     * @return volume of the resulting box
      */
-    static FT intrsctTresh(int n) {
-        return 10;
+    static FT findPlainInnerBallIntersection(const Cut<FT>& cut, const Box<FT>& sbox, const std::vector<unsigned int>& vart, Box<FT>& ibox) {
+        int n = sbox.mDim;
+        FT lmax = 0, amin = 0, bmax = 0;
+        int imax;
+        /* Search for best dimension to divide */
+        FT rq = cut.mR * cut.mR;
+        for (int i = 0; i < n; i++) {
+            FT q = 0;
+            for (int j = 0; j < n; j++) {
+                if (j != i) {
+                    FT p = BNBMAX(BNBABS(sbox.mA[j] - cut.mC[j]), BNBABS(sbox.mB[j] - cut.mC[j]));
+                    q += p * p;
+                }
+            }
+            if (q < rq) {
+                FT h = sqrt(rq - q);
+                FT a = cut.mC[i] - h;
+                FT b = cut.mC[i] + h;
+
+                /** Compute intersection **/
+                FT an = BNBMAX(a, sbox.mA[i]);
+                FT bn = BNBMIN(b, sbox.mB[i]);
+
+                /** Check intersection **/
+                if (an > bn)
+                    continue;
+
+                FT l = (bn - an) / (sbox.mB[i] - sbox.mA[i]);
+                if (l > lmax) {
+                    imax = i;
+                    lmax = l;
+                    amin = an;
+                    bmax = bn;
+                }
+            }
+        }
+        FT v;
+        if (lmax > 0) {
+            BoxUtils::copy(sbox, ibox);
+            ibox.mA[imax] = amin;
+            ibox.mB[imax] = bmax;
+            v = BoxUtils::volume(ibox);
+        } else {
+            v = 0;
+        }
+        return v;
     }
 
     /**
@@ -293,10 +378,10 @@ public:
                     break;
                 } else
                     u *= br - ar;
-                //tbox.mA[j] = ar;
-                //tbox.mB[j] = br;
-                tbox.mA[i] = a;
-                tbox.mB[i] = b;
+                tbox.mA[i] = ar;
+                tbox.mB[i] = br;
+                //tbox.mA[i] = a;
+                //tbox.mB[i] = b;
             }
             if (u > v) {
                 v = u;
@@ -456,6 +541,7 @@ public:
         }
         v.push_back(nbox);
     }
+
 
 
 };

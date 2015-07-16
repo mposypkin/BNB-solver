@@ -20,6 +20,8 @@
 
 #include "polybc.hpp"
 
+
+
 class MyStopper : public GradBoxDescent<double>::Stopper {
 public:
 
@@ -110,7 +112,7 @@ int main(int argc, char** argv) {
     /* Setup composite cut factory  */
     CompCutFactory <double> fact;
     fact.push(&objEigenCutFact);
-    //fact.push(&unconsCutFact);
+    fact.push(&unconsCutFact);
     //fact.push(&convCutFact);
 
     /* Setup cut applicator */
@@ -149,6 +151,6 @@ int main(int argc, char** argv) {
     std::cout << iters << " iterations\n";
     std::cout << "Record = " << state.mRecord->getValue() << "\n";
     VecUtils::vecPrint(n, (double*) ors.getX());
-
+    
     return 0;
 }
