@@ -42,25 +42,21 @@ int main(int argc, char** argv) {
     bool boxedcut = true;
 
 
-    if (argc != 6)
-        BNB_ERROR_REPORT("Usage runpolymi.exe dimension box_size polynom cut_depth use_boxed_cut (0/1)");
+    if (argc != 7)
+        BNB_ERROR_REPORT("Usage runpolymi.exe dimension box_size polynom cut_depth use_boxed_cut (0/1) record");
     n = atoi(argv[1]);
     d = atoi(argv[2]);
     ldepth = atoi(argv[4]);
     boxedcut = (atoi(argv[5]) == 0) ? false : true;
+    double record = atof(argv[6]);
 
     PolyMIFactory polymifact(n, d, argv[3]);
     NlpProblem<double>* nlp = polymifact.getProb();
 
-#if 0    
-    double x[n] = {2, 2};
-    double v = nlp->mObj->func(x);
-    std::cout << " v = " << v << "\n";
-#endif
 
     /* Setup cut generators */
     /* Cut generator for objective*/
-    NlpRecStore<double> ors(10000, nlp);
+    NlpRecStore<double> ors(record, nlp);
     PointCutFactory<double> pfact(&ors);
     PolyObjective<double>* obj = dynamic_cast<PolyObjective<double>*> (nlp->mObj);
     PolyEigenSupp objEigenSupp(obj);
@@ -72,10 +68,16 @@ int main(int argc, char** argv) {
     fact.push(&objEigenCutFact);
 
     /* Setup cut applicator */
-    std::cout << "mVariables = " << nlp->mVariables.size() << "\n";
     SmartCutApplicator<double> sca(nlp->mVariables);
-    if(boxedcut)
-        sca.getOptions() |= SmartCutApplicator<double>::Options::CUT_BALL_BOXED;
+    
+    if (boxedcut == 0)
+        sca.getOptions() = SmartCutApplicator<double>::Options::CUT_BALL_SIMPLE;
+    if (boxedcut == 1)
+        sca.getOptions() = SmartCutApplicator<double>::Options::CUT_BALL_BOXED;
+    if (boxedcut == 2)
+        sca.getOptions() = (SmartCutApplicator<double>::Options::CUT_BALL_SIMPLE
+            | SmartCutApplicator<double>::Options::CUT_BALL_BOXED);
+
 
     /* Setup splitter */
     //StdBoxSplitter<double> splt;
@@ -94,8 +96,6 @@ int main(int argc, char** argv) {
     /* Solving problem */
     bool ru;
     long long int iters = 10000000;
-
-    std::cout << "Record = " << state.mRecord->getValue() << "\n";
 
     bnc.solve(iters, state, ru);
 

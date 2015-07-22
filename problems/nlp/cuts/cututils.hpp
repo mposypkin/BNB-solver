@@ -15,6 +15,7 @@
 #include <sstream>
 #include <vector>
 #include <limits>
+#include <functional>
 #include <util/box/boxutils.hpp>
 #include <problems/nlp/common/nlpproblem.hpp>
 
@@ -205,9 +206,11 @@ public:
         Box<FT> cbox1(n);
         Box<FT> cbox2(n);
 
-        double vs = BoxUtils::volume(box);
-        FT vp = findPlainInnerBallIntersection(cut, box, vart, cbox1);
-        FT vc = findMaxIntersection(cut, box, vart, cbox2);
+        FT vs, vp, vc;
+        vs = BoxUtils::volume(box);
+        vp = findPlainInnerBallIntersection(cut, box, vart, cbox1);
+        if (vs != 0)
+            vc = findMaxIntersection(cut, box, vart, cbox2);
 
         // TMP
 #if 0
@@ -222,30 +225,35 @@ public:
 #endif
         // TMP
 
-
-        /** check whether assume plain cut instead of maximal cut **/
-        auto muchbigger = [] (double a, double b) {
-            return a >= 1.2 * b;
-        };
-
-        /** check whether it is worth to apply complement **/
-        auto muchreduce = [] (double sourcev, double complementv) {
-            return sourcev <= (8 * complementv);
-        };
-
-        Box<FT> cbox(n);
         std::vector< Box<FT> > nv;
-        if (muchbigger(vc, vp)) {
-            if ((vc > 0) && muchreduce(vs, vc))
-                BoxUtils::complement(box, cbox2, nv);
-            else
-                nv.push_back(box);
+        if (vs == 0) {
+            /** Degenerate case **/
+            BoxUtils::complement(box, cbox1, nv);
         } else {
-            if (vp > 0)
-                BoxUtils::complement(box, cbox1, nv);
-            else
-                nv.push_back(box);
+            /** check whether assume plain cut instead of maximal cut **/
+            auto muchbigger = [] (double a, double b) {
+                return a >= 1.5 * b;
+            };
+
+            /** check whether it is worth to apply complement **/
+            auto muchreduce = [] (double sourcev, double complementv) {
+                return sourcev <= (8 * complementv);
+            };
+
+            Box<FT> cbox(n);
+            if (muchbigger(vc, vp)) {
+                if ((vc > 0) && muchreduce(vs, vc))
+                    BoxUtils::complement(box, cbox2, nv);
+                else
+                    nv.push_back(box);
+            } else {
+                if (vp > 0)
+                    BoxUtils::complement(box, cbox1, nv);
+                else
+                    nv.push_back(box);
+            }
         }
+        
         /** respect integral bounds **/
         auto integrify = [] (Box<FT>& box, const std::vector<unsigned int>& vart) {
             int n = box.mDim;
@@ -253,14 +261,22 @@ public:
                 if (vart[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
                     box.mA[i] = ceil(box.mA[i]);
                     box.mB[i] = floor(box.mB[i]);
+                    if(box.mA[i] > box.mB[i])
+                        return false;
                 }
             }
+            return true;
         };
-        if (!vart.empty())
+
+        if (!vart.empty()) {
             for (auto o : nv) {
-                integrify(o, vart);
+                Box<FT> bx = o;
+                if (integrify(bx, vart))
+                    v.push_back(bx);
             }
-        v.insert(v.begin(), nv.begin(), nv.end());
+        } else {
+            v.insert(v.end(), nv.begin(), nv.end());
+        }
     }
 
     /**
@@ -290,6 +306,17 @@ public:
                 FT a = cut.mC[i] - h;
                 FT b = cut.mC[i] + h;
 
+                if (!vart.empty()) {
+                    const FT alpha = 0.5;
+                    if (vart[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
+                        FT fa = floor(a);
+                        if (a != fa)
+                            a = fa + alpha * (a - fa);
+                        FT cb = ceil(b);
+                        if (b != cb)
+                            b = cb - alpha * (cb - b);
+                    }
+                }
                 /** Compute intersection **/
                 FT an = BNBMAX(a, sbox.mA[i]);
                 FT bn = BNBMIN(b, sbox.mB[i]);
@@ -371,6 +398,17 @@ public:
                 //BNB_ASSERT(q >= 0);
                 FT a = cut.mC[i] - s;
                 FT b = cut.mC[i] + s;
+                if (!vart.empty()) {
+                    const FT alpha = 0.5;
+                    if (vart[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
+                        FT fa = floor(a);
+                        if (a != fa)
+                            a = fa + alpha * (a - fa);
+                        FT cb = ceil(b);
+                        if (b != cb)
+                            b = cb - alpha * (cb - b);
+                    }
+                }
                 FT ar = BNBMAX(a, sbox.mA[i]);
                 FT br = BNBMIN(b, sbox.mB[i]);
                 if (ar >= br) {

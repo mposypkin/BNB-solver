@@ -112,7 +112,7 @@ private:
 #endif
             mCutApplicator->ApplyCut(cuts, b, nv);
 #if 0       
-            if (nv.size() == 0) {
+           if (nv.size() == 0) {
                 std::cout << "Total elimination\n";
             } else if ((nv.size() == 1) && BoxUtils::isSameBox(b, nv.at(0))) {
                 std::cout << "no effect\n";

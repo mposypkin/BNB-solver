@@ -21,6 +21,7 @@ public:
          * Total cut: eliminate the whole set
          */
         static const unsigned int TOTAL = 1;
+        
         /**
          * Cut the internity of the ball
          */

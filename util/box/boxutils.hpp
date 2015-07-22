@@ -6,6 +6,7 @@
 
 #include <math.h>
 #include <sstream>
+#include <iostream>
 #include <vector>
 #include "util/common/utilmacro.hpp"
 #include "box.hpp"
@@ -259,33 +260,32 @@ public:
         int n = sbox.mDim;
         BNB_ASSERT(cbox.mDim == n);
         Box<FT> box(n);
+        
         copy(sbox, box);
         bool intersect = true;
         for (int i = 0; i < n; i++) {
-            if ((cbox.mB[i] <= box.mA[i]) || (cbox.mA[i] >= box.mB[i])) {
+            if ((cbox.mB[i] < box.mA[i]) || (cbox.mA[i] > box.mB[i])) {
                 intersect = false;
             }
         }
         if (intersect) {
             for (int i = 0; i < n; i++) {
-                if ((cbox.mB[i] <= box.mA[i]) || (cbox.mA[i] >= box.mB[i])) {
-                    BNB_ASSERT(false);
-                } else {
-                    if (cbox.mA[i] > box.mA[i]) {
-                        Box<FT> nbox(n);
-                        copy(box, nbox);
-                        nbox.mB[i] = cbox.mA[i];
-                        box.mA[i] = cbox.mA[i];
-                        result.push_back(nbox);
-                    }
-                    if (cbox.mB[i] < box.mB[i]) {
-                        Box<FT> nbox(n);
-                        copy(box, nbox);
-                        nbox.mA[i] = cbox.mB[i];
-                        box.mB[i] = cbox.mB[i];
-                        result.push_back(nbox);
-                    }
+
+                if (cbox.mA[i] > box.mA[i]) {
+                    Box<FT> nbox(n);
+                    copy(box, nbox);
+                    nbox.mB[i] = cbox.mA[i];
+                    box.mA[i] = cbox.mA[i];
+                    result.push_back(nbox);
                 }
+                if (cbox.mB[i] < box.mB[i]) {
+                    Box<FT> nbox(n);
+                    copy(box, nbox);
+                    nbox.mA[i] = cbox.mB[i];
+                    box.mB[i] = cbox.mB[i];
+                    result.push_back(nbox);
+                }
+
             }
         } else {
             result.push_back(box);
@@ -323,11 +323,11 @@ public:
     template <class FT> static FT volume(const Box<FT> &box) {
         int n = box.mDim;
         FT v = 1;
-        for(int i = 0; i < n; i ++) {
+        for (int i = 0; i < n; i++) {
             v *= box.mB[i] - box.mA[i];
         }
         return v;
     }
-    };
+};
 #endif
 
