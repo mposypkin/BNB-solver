@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     // Box size
     int d = 3;
     // Accuracy 
-    double eps = .01;
+    double eps = .001;
     // Cut analysis depth
     int ldepth = 1;
     // Use or not boxed cut or boxed cut together with normal cut
