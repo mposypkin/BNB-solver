@@ -134,7 +134,8 @@ int main(int argc, char** argv) {
     WFSDFSManager manager;
     manager.setOptions(WFSDFSManager::Options::DFS);
     manager.reg(root);
-    BNCState<double> state(&tree, &manager, &ors);
+    BNCState<double> state(&manager, &ors);
+    state.mForest.push_back(&tree);
 
 
     /* Solving problem */

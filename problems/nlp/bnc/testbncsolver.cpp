@@ -101,8 +101,8 @@ int main(int argc, char** argv) {
     BNBNode* root = tree.getRoot();
     WFSDFSManager manager;
     manager.reg(root);
-    BNCState<double> state(&tree, &manager, &rs);
-
+    BNCState<double> state(&manager, &rs);
+    state.mForest.push_back(&tree);
     bool ru;
     long long int iters = 10000;
     bnc.solve(iters, state, ru);

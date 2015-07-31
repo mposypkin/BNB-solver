@@ -22,20 +22,18 @@ template <class FT> struct BNCState {
     
     /**
      * Constructor
-     * @param tree pointer to branch-and-cut tree
      * @param manager pointer to the tree manager
      * @param rec pointer to the record storage
      */
-    BNCState(BNBTree* tree, BNBTreeManager* manager, RecStore<FT>* rec) {
-        mTree = tree;
+    BNCState(BNBTreeManager* manager, RecStore<FT>* rec) {
         mTreeManager = manager;
         mRecord = rec;
     }
     
     /**
-     * Branch-and-cut tree
+     * Branch-and-cut forest
      */
-    BNBTree* mTree;
+    std::vector<BNBTree*> mForest;
     /**
      * Branch-and-cut tree manager
      */
