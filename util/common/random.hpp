@@ -3,10 +3,30 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <iostream>
 
 /**
  * Utilities for pseudo-random numbers and sequences generation
  */
+
+/**
+ * A wrapper class over simple number generator
+ */
+template <class FT> class BnbRandom {
+public:
+    
+    /**
+     * Retrieve random number in [a, b] segment
+     * @return 
+     */
+    static FT get(FT a, FT b) {
+        FT r = (FT) rand() / (FT) RAND_MAX;
+        FT q = a + (b - a) *r;
+        std::cout << "a = " << a << ", b = " << b << ", q = " << q << "\n";
+        return q;
+    }
+    
+};
 
 /**
  * Implements random tries with given probability
