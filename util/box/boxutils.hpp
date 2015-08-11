@@ -5,18 +5,20 @@
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include <sstream>
 #include <iostream>
 #include <vector>
-#include "util/common/utilmacro.hpp"
+#include <util/common/utilmacro.hpp>
+#include <util/common/segment.hpp>
+#include <util/common/random.hpp>
 #include "box.hpp"
-#include "util/common/segment.hpp"
 
 class BoxUtils {
 public:
 
     /**
-     * Calculated box center
+     * Calculate box center
      * @param box under consideration
      * @param c center
      */
@@ -28,6 +30,18 @@ public:
             c[i] = 0.5 * (a[i] + b[i]);
         }
 
+    }
+    
+   /**
+     * Calculate a random point in a box
+     * @param box under consideration
+     * @param c random point
+     */
+    template <class FT> static void getRandomPoint(const Box<FT> &box, FT* c) {
+        const int n = box.mDim;
+        for (int i = 0; i < n; i++) {
+            c[i] = BnbRandom::get(box.mA[i], box.mB[i]);
+        }
     }
 
     /**

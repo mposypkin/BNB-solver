@@ -53,32 +53,21 @@ public:
             mPert.perturb(y, z);
             FT objv = mProb.mObj->func((FT*) z);
             FT consv = mProb.mCons[0]->mObjective->func((FT*) z);
-            std::cout << "step " << i << "\n";
-            std::cout << "objv = " << objv << ", consv = " << consv << "\n";
-            VecUtils::vecPrint(n, (FT*) z);
-            std::cout << "WOW! new " << BNBABS(consv) << " vs rec " << BNBABS(rconsv) << "\n";
             if ((BNBABS(consv) <= mDelta) && (BNBABS(rconsv) <= mDelta)) {
-                std::cout << "IF 1\n";
                 if (objv < robjv) {
                     robjv = objv;
                     rconsv = consv;
                     VecUtils::vecCopy(n, (FT*) z, (FT*) y);
                     i = 0;
-                    std::cout << "IMPROVED OBJECTIVE\n";
                 }
             } else if (BNBABS(consv) < BNBABS(rconsv)) {
-                std::cout << "IF 2\n";
                 robjv = objv;
                 rconsv = consv;
                 VecUtils::vecCopy(n, (FT*) z, (FT*) y);
                 i = 0;
-                std::cout << "IMPROVED CONSTRAINT\n";
             }
         }
         
-        std::cout << "============ Record ==========\n";
-        std::cout << "objv = " << robjv << ", consv = " << rconsv << "\n";
-        VecUtils::vecPrint(n, (FT*) y);
         VecUtils::vecCopy(n, (FT*) y, (FT*) x);
         return robjv;
     }

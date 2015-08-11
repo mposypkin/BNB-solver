@@ -12,17 +12,16 @@
 /**
  * A wrapper class over simple number generator
  */
-template <class FT> class BnbRandom {
+class BnbRandom {
 public:
     
     /**
      * Retrieve random number in [a, b] segment
      * @return 
      */
-    static FT get(FT a, FT b) {
+    template <class FT> static FT get(FT a, FT b) {
         FT r = (FT) rand() / (FT) RAND_MAX;
         FT q = a + (b - a) *r;
-        std::cout << "a = " << a << ", b = " << b << ", q = " << q << "\n";
         return q;
     }
     

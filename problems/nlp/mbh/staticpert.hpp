@@ -37,7 +37,7 @@ public:
     void perturb(const FT * x, FT * y) const {
         int n = mProblem.mBox.mDim;
         for (int i = 0; i < n; i++) {
-            FT r = BnbRandom<FT>::get(x[i] + mVicinity.mA[i], x[i] + mVicinity.mB[i]);
+            FT r = BnbRandom::get(x[i] + mVicinity.mA[i], x[i] + mVicinity.mB[i]);
             FT u;
             if (mProblem.mVariables[i] == NlpProblem<FT>::VariableTypes::GENERIC) {
                 u = r;
@@ -49,11 +49,9 @@ public:
             } else {
                 BNB_ERROR_REPORT("Unknown variable type");
             }
-            std::cout << " before u = " << u << "\n";
             u = BNBMAX(u, mProblem.mBox.mA[i]);
             u = BNBMIN(u, mProblem.mBox.mB[i]);
             y[i] = u;
-            std::cout << " after u = " << u << "\n";
         }
 
     }
