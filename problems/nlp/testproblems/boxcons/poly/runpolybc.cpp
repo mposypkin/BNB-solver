@@ -73,15 +73,15 @@ int main(int argc, char** argv) {
     int boxedcut = true;
 
 
-    if (argc != 7)
+    if (argc != 6)
         BNB_ERROR_REPORT("Usage runpolybc.exe dimension box_size polynom cut_depth use_boxed_cut (0/1/2) record");
-    n = atoi(argv[1]);
-    d = atoi(argv[2]);
-    ldepth = atoi(argv[4]);
-    boxedcut = atoi(argv[5]);
-    double rec = atof(argv[6]);
+   
+    d = atoi(argv[1]);
+    ldepth = atoi(argv[3]);
+    boxedcut = atoi(argv[4]);
+    double rec = atof(argv[5]);
 
-    PolyBCFactory polybcfact(n, d, argv[3]);
+    PolyBCFactory polybcfact(n, d, argv[2]);
     NlpProblem<double>* nlp = polybcfact.getProb();
     
 #if 0

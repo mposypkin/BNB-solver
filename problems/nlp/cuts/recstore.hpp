@@ -21,12 +21,18 @@ public:
     virtual FT getValue() const = 0; 
 
     /**
+     * Retrieve the record vector 
+     * @return record vector
+     */
+    virtual const FT* getX() const = 0;
+    
+    /**
      * Update the record
      * @param rec new record value
      * @param x new record vector
      * @return true if record was updated
      */
-    virtual bool update(FT rec, FT* x) = 0;
+    virtual bool update(FT rec, const FT* x) = 0;
 
 };
 

@@ -27,13 +27,22 @@ public:
     FT getValue() const {
         return mRec;
     }
+
+    /**
+     * Retrieve the record vector 
+     * @return record vector
+     */
+    const FT* getX() const {
+        BNB_ERROR_REPORT("Sensless for dummy record storage");
+    }
+
     /**
      * Update the record
      * @param rec new record value
      * @param x new record vector
      * @return true if record was updated
      */
-    bool update(FT rec, FT* x) {
+    bool update(FT rec, const FT* x) {
         return false;
     }
 

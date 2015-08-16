@@ -17,7 +17,7 @@
 class BNBNodeCmp {
 public:
 
-    bool operator() (const BNBNode* n1, const BNBNode* n2) const {
+    bool operator()(const BNBNode* n1, const BNBNode* n2) const {
         return (n1->mLayer > n2->mLayer);
     }
 };
@@ -70,7 +70,7 @@ public:
      * @return pointer to the node data
      */
     BNBNode* get() {
-        if(mNodes.empty()) 
+        if (mNodes.empty())
             return NULL;
         typename QType::iterator i;
         if (mOptions == Options::WFS) {
@@ -84,7 +84,30 @@ public:
         return n;
     }
 
- 
+    /**
+     * Traverses the node list
+     * @param handler handles the nodes
+     */
+    void traverse(std::function<void (BNBNode*) > handler) {
+        if (mOptions == Options::WFS) {
+            for (auto i = mNodes.rbegin(); i != mNodes.rend(); i++) {
+                handler(*i);
+            }
+        } else {
+            for (auto i = mNodes.begin(); i != mNodes.end(); i++) {
+                handler(*i);
+            }
+        }
+    }
+
+    /**
+     * Retrieve the number of registered nodes
+     * @return number of nodes
+     */
+    long unsigned int size() const {
+        return mNodes.size();
+    }
+
 private:
     QType mNodes;
     unsigned int mOptions;

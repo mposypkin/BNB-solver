@@ -76,7 +76,11 @@ public:
         return mRec;
     }
 
-    SmartArrayPtr<FT>& getX() {
+    /**
+     * Retrieve the record vector 
+     * @return record vector
+     */
+    const FT* getX() const {
         return mX;
     }
 
@@ -86,7 +90,7 @@ public:
      * @param x new record vector
      * @return true if record was updated
      */
-    bool update(FT rec, FT* x) {
+    bool update(FT rec, const FT* x) {
         bool rv = false;
         if (project(x)) {
             FT v = mNLP->mObj->func(mTX);
@@ -121,7 +125,7 @@ public:
 
 private:
 
-    bool project(FT * x) {
+    bool project(const FT * x) {
         int n = mX.size();
         if (!mNLP->mVariables.empty()) {
             for (int i = 0; i < n; i++) {

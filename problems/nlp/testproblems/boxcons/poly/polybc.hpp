@@ -35,7 +35,7 @@ public:
      * @param n number of dimensions
      * @param d box size
      */
-    PolyBCFactory(int n, int d, const std::string str) : 
+    PolyBCFactory(int n, int d, const std::string& str) : 
     mN(n), mD(d)
     {
         mN = n;

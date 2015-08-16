@@ -57,8 +57,13 @@ public:
     FT getValue() const {
         return mRec;
     }
+    
+    /**
+     * Retrieve the record vector
+     * @return record vector
+     */
 
-    SmartArrayPtr<FT>& getX() {
+    const FT* getX() const {
         return mX;
     }
 
@@ -68,7 +73,7 @@ public:
      * @param x new record vector
      * @return true if record was updated
      */
-    bool update(FT rec, FT* x) {
+    bool update(FT rec, const FT* x) {
         bool rv = false;
 
         if (mOptions == Options::MINIMIZE) {
