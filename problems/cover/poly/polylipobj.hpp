@@ -3,8 +3,8 @@
 
 #include <math.h>
 #include <problems/cover/common/lipzobjective.hpp>
-#include <problems/poly/polyutil.hpp>
-#include <problems/poly/polynomtxt.hpp>
+#include <util/poly/polyutil.hpp>
+#include <util/poly/polynomtxt.hpp>
 #include <problems/optlib/polyobjective.hpp>
 
 /**

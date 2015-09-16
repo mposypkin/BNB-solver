@@ -5,7 +5,7 @@
  */
 
 #include <map>
-#include <problems/poly/polyutil.hpp>
+#include <util/poly/polyutil.hpp>
 #include <problems/optlib/polyobjective.hpp>
 #include <problems/optlib/gradboxdesc.hpp>
 #include <util/ineq/foumotz.hpp>

@@ -7,8 +7,8 @@
 
 #include <cstdlib>
 #include <problems/optlib/polyobjective.hpp>
-#include <problems/poly/polyutil.hpp>
-#include <problems/poly/polynomtxt.hpp>
+#include <util/poly/polyutil.hpp>
+#include <util/poly/polynomtxt.hpp>
 
 #include "multimc.hpp"
 

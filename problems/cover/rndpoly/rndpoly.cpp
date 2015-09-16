@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <problems/cover/poly/polylipobj.hpp>
-#include <problems/poly/polynom.hpp>
-#include <problems/poly/polynomtxt.hpp>
-#include <problems/poly/polynomgams.hpp>
-#include <problems/poly/polyutil.hpp>
+#include <util/poly/polynom.hpp>
+#include <util/poly/polynomtxt.hpp>
+#include <util/poly/polynomgams.hpp>
+#include <util/poly/polyutil.hpp>
 #include <problems/optlib/conjgrad.hpp>
 #include <problems/optlib/fletchsearch.hpp>
 #include <problems/cover/common/go.hpp>

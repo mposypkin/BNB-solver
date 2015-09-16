@@ -17,8 +17,8 @@
 #include <vector>
 #include <problems/pareto/multiopt/multidata.hpp>
 #include <problems/optlib/polyobjective.hpp>
-#include <problems/poly/polyutil.hpp>
-#include <problems/poly/polynomtxt.hpp>
+#include <util/poly/polyutil.hpp>
+#include <util/poly/polynomtxt.hpp>
 #include <problems/cover/poly/polylipobj.hpp>
 
 template <typename FT> class TestBNH {

@@ -9,8 +9,8 @@
 #include <string.h>
 #include <problems/pareto/multiopt/multimc.hpp>
 #include <problems/optlib/polyobjective.hpp>
-#include <problems/poly/polyutil.hpp>
-#include <problems/poly/polynomtxt.hpp>
+#include <util/poly/polyutil.hpp>
+#include <util/poly/polynomtxt.hpp>
 #include <problems/optlib/gradboxdesc.hpp>
 #include <problems/pareto/multiopt/mboxlocsearch.hpp>
 #include <problems/pareto/multiopt/mgradesc.hpp>

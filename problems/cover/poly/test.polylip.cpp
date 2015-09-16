@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <problems/poly/polynom.hpp>
-#include <problems/poly/polynomtxt.hpp>
-#include <problems/poly/polyutil.hpp>
+#include <util/poly/polynom.hpp>
+#include <util/poly/polynomtxt.hpp>
+#include <util/poly/polyutil.hpp>
 #include <problems/optlib/conjgrad.hpp>
 #include <problems/optlib/fletchsearch.hpp>
 #include <common/go.hpp>

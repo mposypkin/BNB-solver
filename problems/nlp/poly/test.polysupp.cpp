@@ -5,9 +5,9 @@
  * Created on April 6, 2015, 12:48 PM
  */
 #include <iostream>
-#include <problems/poly/polynom.hpp>
-#include <problems/poly/polynomtxt.hpp>
-#include <problems/poly/polyutil.hpp>
+#include <util/poly/polynom.hpp>
+#include <util/poly/polynomtxt.hpp>
+#include <util/poly/polyutil.hpp>
 
 #include "polysupp.hpp"
 

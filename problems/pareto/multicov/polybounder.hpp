@@ -11,7 +11,7 @@
 #include <limits>
 #include <vector>
 #include <problems/pareto/multiopt/multidata.hpp>
-#include <problems/poly/polynom.hpp>
+#include <util/poly/polynom.hpp>
 #include <util/box/boxutils.hpp>
 #include "bounder.hpp"
 

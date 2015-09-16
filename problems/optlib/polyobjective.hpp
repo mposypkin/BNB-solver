@@ -2,7 +2,7 @@
 #define __POLYOBJECTIVE_HPP__
 
 #include <problems/optlib/objective.hpp>
-#include <problems/poly/polynom.hpp>
+#include <util/poly/polynom.hpp>
 /**
   * Polynomial as an optimization objective
   */

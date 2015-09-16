@@ -6,7 +6,7 @@
  */
 
 #include <cstdlib>
-#include <problems/poly/polyutil.hpp>
+#include <util/poly/polyutil.hpp>
 #include "locminchecker.hpp"
 #include "polyobjective.hpp"
 

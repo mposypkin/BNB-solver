@@ -10,6 +10,7 @@ BOX = box
 SPACEFILL = spacefill
 BOXBNB = boxbnb
 TREE = tree
+POLY = poly
 
 all dep clean indent tests::
 	cd $(ACLIB) && $(MAKE) $@ && cd .. &&\
@@ -21,4 +22,5 @@ all dep clean indent tests::
 	cd $(BOX) && $(MAKE) $@ && cd .. &&\
 	cd $(SPACEFILL) && $(MAKE) $@ && cd .. &&\
 	cd $(BOXBNB) && $(MAKE) $@ && cd .. &&\
+	cd $(POLY) && $(MAKE) $@ && cd .. &&\
 	cd $(TREE) && $(MAKE) $@ && cd ..
