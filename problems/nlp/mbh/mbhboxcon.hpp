@@ -1,12 +1,15 @@
 /* 
- * File:   mbh.hpp
+ * File:   mbhboxcon.hpp
  * Author: medved
  *
- * Created on August 3, 2015, 7:25 PM
+ *  Version of monotonic basin hopping 
+ *  for box constrained problems
+ * 
+ * Created on September 18, 2015, 8:28 AM
  */
 
-#ifndef MBHNLP_HPP
-#define	MBHNLP_HPP
+#ifndef MBHBOXCON_HPP
+#define	MBHBOXCON_HPP
 
 #include <problems/nlp/common/nlpproblem.hpp>
 #include <util/common/smartptr.hpp>
@@ -15,10 +18,9 @@
 
 /**
  * Modification of the Monotonic Basin Hopping for 
- * Non-Linear Programming with exactly one equality constraint (use penalty wrappers 
- * if the number of constraints is larger)
+ * Non-Linear Programming with box constraints
  */
-template <class FT> class MBHNlp {
+template <class FT> class MBHBoxCon {
 public:
 
     /**
@@ -26,12 +28,10 @@ public:
      * @param prob the NLP problem to resolve
      * @param perturber perturber
      * @param maxlochops maximal number of local hops
-     * @param delta equality constraint tolerance
      */
-    MBHNlp(const NlpProblem<FT>& prob, const Perturber<FT>& perturber, int maxlochops, FT delta) :
-    mProb(prob), mPert(perturber),  mMaxLocalHops(maxlochops), mDelta(delta) {
-        BNB_ASSERT(prob.mCons.size() == 1);
-        BNB_ASSERT(prob.mCons[0]->mType == Constraint<FT>::Types::EQUALITY_CONSTRAINT);
+    MBHBoxCon(const NlpProblem<FT>& prob, const Perturber<FT>& perturber, int maxlochops) :
+    mProb(prob), mPert(perturber), mMaxLocalHops(maxlochops) {
+        BNB_ASSERT(prob.mCons.empty());
     }
 
     /**
@@ -46,27 +46,18 @@ public:
         SmartArrayPtr<FT> z(n);
         VecUtils::vecCopy(n, x, (FT*) y);
         FT robjv = mProb.mObj->func((FT*) y);
-        FT rconsv = mProb.mCons[0]->mObjective->func((FT*) y);
 
         for (int i = 0; i < mMaxLocalHops; i++) {
+            std::cout << "robjv = " << robjv << "\n";
             mPert.perturb(y, z);
             FT objv = mProb.mObj->func((FT*) z);
-            FT consv = mProb.mCons[0]->mObjective->func((FT*) z);
-            if ((BNBABS(consv) <= mDelta) && (BNBABS(rconsv) <= mDelta)) {
-                if (objv < robjv) {
-                    robjv = objv;
-                    rconsv = consv;
-                    VecUtils::vecCopy(n, (FT*) z, (FT*) y);
-                    i = 0;
-                }
-            } else if (BNBABS(consv) < BNBABS(rconsv)) {
+            if (objv < robjv) {
                 robjv = objv;
-                rconsv = consv;
                 VecUtils::vecCopy(n, (FT*) z, (FT*) y);
                 i = 0;
             }
         }
-        
+
         VecUtils::vecCopy(n, (FT*) y, (FT*) x);
         return robjv;
     }
@@ -75,8 +66,7 @@ private:
     const NlpProblem<FT>& mProb;
     const Perturber<FT>& mPert;
     int mMaxLocalHops;
-    FT mDelta;
 };
 
-#endif	/* MBH_HPP */
+#endif	/* MBHBOXCON_HPP */
 

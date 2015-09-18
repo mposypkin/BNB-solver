@@ -39,15 +39,19 @@ public:
         for (int i = 0; i < n; i++) {
             FT r = BnbRandom::get(x[i] + mVicinity.mA[i], x[i] + mVicinity.mB[i]);
             FT u;
-            if (mProblem.mVariables[i] == NlpProblem<FT>::VariableTypes::GENERIC) {
-                u = r;
-            } else if (mProblem.mVariables[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
-                FT p = floor(r);
-                u = ((r - p) > 0.5) ? p + 1 : p;
-            } else if (mProblem.mVariables[i] == NlpProblem<FT>::VariableTypes::BOOLEAN) {
-                u = (r > 0.5) ? 1 : 0;
+            if (!mProblem.mVariables.empty()) {
+                if (mProblem.mVariables[i] == NlpProblem<FT>::VariableTypes::GENERIC) {
+                    u = r;
+                } else if (mProblem.mVariables[i] == NlpProblem<FT>::VariableTypes::INTEGRAL) {
+                    FT p = floor(r);
+                    u = ((r - p) > 0.5) ? p + 1 : p;
+                } else if (mProblem.mVariables[i] == NlpProblem<FT>::VariableTypes::BOOLEAN) {
+                    u = (r > 0.5) ? 1 : 0;
+                } else {
+                    BNB_ERROR_REPORT("Unknown variable type");
+                }
             } else {
-                BNB_ERROR_REPORT("Unknown variable type");
+                u = r;
             }
             u = BNBMAX(u, mProblem.mBox.mA[i]);
             u = BNBMIN(u, mProblem.mBox.mB[i]);
