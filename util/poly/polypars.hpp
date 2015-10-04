@@ -43,7 +43,7 @@ public:
             deg[i] = 0;
 
         coe = sign;
-
+        
         while (true) {
             c = str[*p];
             if (issign(c)) {

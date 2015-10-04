@@ -48,10 +48,10 @@ public:
         FT robjv = mProb.mObj->func((FT*) y);
 
         for (int i = 0; i < mMaxLocalHops; i++) {
-            std::cout << "robjv = " << robjv << "\n";
             mPert.perturb(y, z);
             FT objv = mProb.mObj->func((FT*) z);
             if (objv < robjv) {
+                std::cout << "robjv = " << robjv << "\n";
                 robjv = objv;
                 VecUtils::vecCopy(n, (FT*) z, (FT*) y);
                 i = 0;
