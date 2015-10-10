@@ -387,6 +387,12 @@ public:
                 q += lowb[i] * lowb[i];
                 FT h = sqrt(q);
                 FT z = h - lowb[i];
+                // TMP
+                if(z < 0) {
+                    std::cout << "i = " << i << ", lowb[i] = " << lowb[i] << ", h = " << h << ", z = " << z << "\n";
+                    std::cout << "cut = " << toString(cut) << "box = " << BoxUtils::toString(sbox) << "\n";
+                }
+                // TMP
                 BNB_ASSERT(z >= 0);
                 FT r;
                 if (i == n - 1)

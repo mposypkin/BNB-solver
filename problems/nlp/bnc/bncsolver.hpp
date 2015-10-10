@@ -68,8 +68,9 @@ public:
             std::vector< Cut<FT> > cuts;
             BNBNode* np = node;
             int cutd = 0;
+            int n = sub->mBox.mDim;
             bv.push_back(sub->mBox);
-            
+
             while (np && (cutd++ < mCutLookupDepth)) {
 #if 0
                 std::cout << "Cuts at node " << cutd << ":\n";
@@ -80,10 +81,10 @@ public:
                     break;
                 np = np->mParent;
             }
-            if (bv.empty())
+            if (bv.empty()) {
+                deleteNode(node);
                 continue;
-            else if (bv.size() == 1) {
-                int n = sub->mBox.mDim;
+            } else if (bv.size() == 1) {
                 Box<FT> b0(n), b1(n), b2(n);
                 b0 = bv.at(0);
                 bv.pop_back();
@@ -101,6 +102,28 @@ public:
 
 private:
 
+    void deleteNode(BNBNode* node) {
+        BNB_ASSERT(node->mData != NULL);
+        BNBNode* next = node->mNext;
+        BNBNode* prev = node->mPrev;
+        BNBNode* par = node->mParent;
+        /* Deletes data */
+        delete node->mData;
+        delete node;
+        /* Check if the last child */
+        if ((next == NULL) && (prev == NULL)) {
+            if (par)
+                deleteNode(par);
+        } else {
+            if (next != NULL) {
+                next->mPrev = prev;
+            }
+            if (prev != NULL) {
+                prev->mNext = next;
+            }
+        }
+    }
+
     void applyCuts(const std::vector< Cut<FT> > &cuts, std::vector< Box<FT> > &v) {
         std::vector< Box<FT> > nv;
         for (auto b : v) {
@@ -112,7 +135,7 @@ private:
 #endif
             mCutApplicator->ApplyCut(cuts, b, nv);
 #if 0       
-           if (nv.size() == 0) {
+            if (nv.size() == 0) {
                 std::cout << "Total elimination\n";
             } else if ((nv.size() == 1) && BoxUtils::isSameBox(b, nv.at(0))) {
                 std::cout << "no effect\n";

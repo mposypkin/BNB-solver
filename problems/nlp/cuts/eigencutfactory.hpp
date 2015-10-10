@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <math.h>
+#include <limits>
 
 #include <problems/optlib/objective.hpp>
 #include <util/box/boxutils.hpp>
@@ -51,16 +52,24 @@ public:
         FT k;
         mSupp->getBounds(box, &k, NULL);
 
-        //std::cout << "eigen k = " << k << " for a box " << BoxUtils::toString(box) << "\n";
-
-
         Cut<FT> cut;
         if (k == 0) {
-            cut.mR = fv - fr + mEps - VecUtils::vecDotProd(n, (FT*)g, (FT*)z);
+            cut.mR = fv - fr + mEps - VecUtils::vecDotProd(n, (FT*) g, (FT*) z);
             cut.mC = g;
             cut.mType = Cut<FT>::CutType::LINEAR;
         } else {
             FT a = fr - fv - mEps + (1. / (2 * k)) * VecUtils::vecNormTwoSqr(n, (FT*) g);
+            // TMP
+            /*
+            std::cout.precision(std::numeric_limits<FT>::max_digits10);
+            std::cout << "fr = " << fr << ", fv = " << fv << ", k = " << k << "\n";
+            VecUtils::vecPrint(n, (FT*) g);
+            FT lb = fv;
+            for (int i = 0; i < n; i++)
+                lb -= 0.5 * BNBABS(g[i]*(box.mA[i] - box.mB[i]));
+            std::cout << "Lower bound = " << lb << "\n";
+             */ 
+            // TMP
             SmartArrayPtr<FT> c(n);
             VecUtils::vecSaxpy(n, (FT*) z, (FT*) g, -1 / k, (FT*) c);
             cut.mC = c;
