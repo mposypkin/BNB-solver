@@ -103,6 +103,7 @@ public:
 private:
 
     void deleteNode(BNBNode* node) {
+        BNB_ASSERT(node);
         BNB_ASSERT(node->mData != NULL);
         BNBNode* next = node->mNext;
         BNBNode* prev = node->mPrev;
