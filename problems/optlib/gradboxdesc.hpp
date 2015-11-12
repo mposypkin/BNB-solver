@@ -33,6 +33,26 @@ public:
     };
     
     /**
+     * Options for Gradient Box Descent method
+     */
+    struct Options {
+        
+        /**
+         * Initial value of granularity
+         */
+        FT mGInit = 0.01;
+        
+        /**
+         * Increase in the case of success
+         */
+        FT mInc = 1.75;
+        /**
+         * Decrease in the case of failur
+         */
+        FT mDec = 0.5;
+    };
+    
+    /**
      * The constructor
      *
      * @param box bounding box
@@ -68,7 +88,7 @@ public:
         project(x);
         FT uold = obj->func(x);
         FT u;
-        FT g = 0.01;
+        FT g = mOptions.mGInit;
         int i = 0;
         int n = obj->getDim();
         for (;;) {
@@ -88,9 +108,9 @@ public:
                 break;
             }
             if (u >= uold) {
-                g *= 0.5;
+                g *= mOptions.mDec;
             } else {
-                g *= 1.75;
+                g *= mOptions.mInc;
                 VecUtils::vecCopy(n, (FT*) mXk, x);
                 uold = u;
             }
@@ -98,6 +118,14 @@ public:
         return true;
     }
 
+    /**
+     * Retrieve options
+     * @return options
+     */
+    Options& getOptions() {
+        return mOptions;
+    }
+    
 private:
 
     void project(FT* x) {
@@ -114,6 +142,7 @@ private:
     Stopper *mStopper;
     SmartArrayPtr<FT> mG;
     SmartArrayPtr<FT> mXk;
+    Options mOptions;
 };
 
 

@@ -14,6 +14,7 @@
 #include <vector>
 #include <set>
 #include <limits>
+#include <functional>
 
 #include <kernel/dmmemory/bnbresolver.hpp>
 #include <problems/optlib/locoptim.hpp>
@@ -80,7 +81,7 @@ public:
         virtual void bound(Sub& sub, Solution& incumbent) = 0;
     };
 
-    BoxconBNB() : mCurBounder(0) {
+    BoxconBNB() : mCurBounder(0), mHandler([](Solution& sol, Sub& sub) {}) {
         mIncumbent.mValue = std::numeric_limits<FT>::max();
     }
 
@@ -96,6 +97,14 @@ public:
         mBounders.push_back(bnd);
     }
 
+    /**
+     * Setup handler to call at each iteration (incumbent and current subproblem are passed)
+     * @param hnd
+     */
+    void setHandler(std::function<void (Solution& sol, Sub& sub)> hnd) {
+        mHandler = hnd;
+    }
+    
     /**
      * Initialize the list of subproblems
      * @param sub
@@ -128,6 +137,7 @@ public:
                 break;
             }
             Sub s = getSub();
+            mHandler(mIncumbent, s);
             int n = s.mBox.mDim;
             Box<FT> lb(n), rb(n);
             BoxUtils::divideByLongestEdge(s.mBox, lb, rb);
@@ -163,6 +173,7 @@ private:
     Solution mIncumbent;
     BNBLog <LOG> mLog;
     std::vector< Bounder* > mBounders;
+    std::function< void (Solution& sol, Sub& sub) > mHandler;
     int mCurBounder;
     Options mOptions;
 };

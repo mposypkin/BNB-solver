@@ -9,7 +9,7 @@
 #include "conjgrad.hpp"
 #include "lmbfgs.hpp"
 #include "mbfgs.hpp"
-#include "apxobjective.hpp"
+
 
 class Booth : public Objective <double>
 {
@@ -47,28 +47,11 @@ class Booth : public Objective <double>
 };
 
 
-class BoothBB : public ApxObjective <double>
-{
-  public:
 
-    BoothBB() : ApxObjective <double>()
-    {
-      Objective<double>::setDim(2);
-    }
-
-    double func(const double* vec)
-    {
-      double x1, x2;
-      x1 = vec[0];
-      x2 = vec[1];
-      return BNBSQR(x1 + 2 * x2 - 7) + BNBSQR(2 * x1 + x2 - 5);
-    }
-};
 
 main()
 {
   Booth bt;
-  BoothBB btbb;
   double x0[2] = {20, 30};
   double x[2];
   double v;
@@ -127,24 +110,6 @@ main()
       BNB_ERROR_REPORT("MBFGS failed");
   }  else {
       BNB_ERROR_REPORT("MBFGS failed");
-  }
-
-
-  for(int i = 0; i < 2; i ++)
-      x[i] = x0[i];
-  MBFGS mm1;
-  mm1.setObjective(&btbb);
-  mm1.setEps(0.00001);
-  btbb.setH(0.0000001);
-  rv = mm1.search(x, &v);
-  if(rv){
-      pen = v * v;
-      pen += BNBSQR(x[0] - 1.);
-      pen += BNBSQR(x[1] - 3.);
-      if(pen > 0.001)
-      BNB_ERROR_REPORT("MBFGS failed for black-box");
-  }  else {
-      BNB_ERROR_REPORT("MBFGS failed for black-box");
   }
 }
 

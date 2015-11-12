@@ -12,8 +12,11 @@
 #define	MBHBOXCON_HPP
 
 #include <problems/nlp/common/nlpproblem.hpp>
+#include <problems/optlib/locboxoptim.hpp>
 #include <util/common/smartptr.hpp>
 #include <util/common/vec.hpp>
+#include <util/common/bnbdebug.hpp>
+
 #include "perturber.hpp"
 
 /**
@@ -29,8 +32,8 @@ public:
      * @param perturber perturber
      * @param maxlochops maximal number of local hops
      */
-    MBHBoxCon(const NlpProblem<FT>& prob, const Perturber<FT>& perturber, int maxlochops) :
-    mProb(prob), mPert(perturber), mMaxLocalHops(maxlochops) {
+    MBHBoxCon(const NlpProblem<FT>& prob, Perturber<FT>& perturber, int maxlochops, LocalBoxOptimizer<FT>* ls = NULL) :
+    mProb(prob), mPert(perturber), mMaxLocalHops(maxlochops), mLS(ls) {
         BNB_ASSERT(prob.mCons.empty());
     }
 
@@ -46,17 +49,30 @@ public:
         SmartArrayPtr<FT> z(n);
         VecUtils::vecCopy(n, x, (FT*) y);
         FT robjv = mProb.mObj->func((FT*) y);
+        mPert.reset();
 
-        for (int i = 0; i < mMaxLocalHops; i++) {
-            mPert.perturb(y, z);
-            FT objv = mProb.mObj->func((FT*) z);
-            if (objv < robjv) {
-                std::cout << "robjv = " << robjv << "\n";
-                robjv = objv;
-                VecUtils::vecCopy(n, (FT*) z, (FT*) y);
-                i = 0;
+        do {
+            for (int i = 0; i < mMaxLocalHops; i++) {
+                /*
+                  if(i == 28)
+                    bnbDebugVar = 1;
+                 */ 
+                mPert.perturb(y, z);
+                if(mLS != NULL) {
+                    FT v;
+                    mLS->search(z, &v);
+                }
+                FT objv = mProb.mObj->func((FT*) z);
+                if (objv < robjv) {
+                    mPert.success(i, objv, robjv);
+                    std::cout << "robjv = " << robjv << "\n";
+                    robjv = objv;
+                    VecUtils::vecCopy(n, (FT*) z, (FT*) y);
+                    i = 0;
+                }                
             }
-        }
+            mPert.fail(mMaxLocalHops);
+        } while (mPert.cont());
 
         VecUtils::vecCopy(n, (FT*) y, (FT*) x);
         return robjv;
@@ -64,7 +80,8 @@ public:
 
 private:
     const NlpProblem<FT>& mProb;
-    const Perturber<FT>& mPert;
+    Perturber<FT>& mPert;
+    LocalBoxOptimizer<FT>* mLS;
     int mMaxLocalHops;
 };
 

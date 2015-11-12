@@ -28,7 +28,7 @@ public:
      * @param maxlochops maximal number of local hops
      * @param delta equality constraint tolerance
      */
-    MBHNlp(const NlpProblem<FT>& prob, const Perturber<FT>& perturber, int maxlochops, FT delta) :
+    MBHNlp(const NlpProblem<FT>& prob,  Perturber<FT>& perturber, int maxlochops, FT delta) :
     mProb(prob), mPert(perturber),  mMaxLocalHops(maxlochops), mDelta(delta) {
         BNB_ASSERT(prob.mCons.size() == 1);
         BNB_ASSERT(prob.mCons[0]->mType == Constraint<FT>::Types::EQUALITY_CONSTRAINT);
@@ -73,7 +73,7 @@ public:
 
 private:
     const NlpProblem<FT>& mProb;
-    const Perturber<FT>& mPert;
+    Perturber<FT>& mPert;
     int mMaxLocalHops;
     FT mDelta;
 };

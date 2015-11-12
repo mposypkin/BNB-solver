@@ -1,12 +1,12 @@
 /* 
- * File:   staticpert.hpp
+ * File:   adaptpert.hpp
  * Author: medved
  *
  * Created on August 4, 2015, 5:16 PM
  */
 
-#ifndef STATICPERT_HPP
-#define	STATICPERT_HPP
+#ifndef ADAPTPERT_HPP
+#define	ADAPTPERT_HPP
 
 #include <stdlib.h>
 #include <util/common/random.hpp>
@@ -15,18 +15,44 @@
 #include "perturber.hpp"
 
 /**
- * Simplest perturber based on static neighbourhood
+ * Perturber based on dynamically changing neighbourhood
  */
-template <class FT> class StaticPerturber : public Perturber <FT> {
+template <class FT> class AdaptPerturber : public Perturber <FT> {
 public:
+
+    /**
+     * Adaptive perturber parameters
+     */
+    struct Params {
+        /**
+         * Initial value of R
+         */
+        const FT mRinit;
+        /**
+         * Minimal value of scale
+         */
+        const FT mRmin;
+        /** 
+         * Maximal value of scale
+         */
+        const FT mRmax;
+        /**
+         * Decremental multiplier
+         */
+        const FT mDec;
+        /**
+         * Increment multiplier
+         */
+        const FT mInc;
+    };
 
     /**
      * Constructor 
      * @param problem NLP problem to solve
      * @param vicinity - to generate local perturbations, vicinity is centered at zero, e.g. use [-1,1] to generate symmetric perturbations
      */
-    StaticPerturber(const NlpProblem<FT>& problem, const Box<FT>& vicinity) :
-    mProblem(problem), mVicinity(vicinity) {
+    AdaptPerturber(const NlpProblem<FT>& problem, const Box<FT>& vicinity, const Params& params) :
+    mProblem(problem), mVicinity(vicinity), mParams(params), mR(params.mRinit){
     }
 
     /**
@@ -34,10 +60,10 @@ public:
      * @param x source point
      * @param y resulting (perturbed) point
      */
-    void perturb(const FT * x, FT * y)  {
+    void perturb(const FT * x, FT * y) {
         int n = mProblem.mBox.mDim;
         for (int i = 0; i < n; i++) {
-            FT r = BnbRandom::get(x[i] + mVicinity.mA[i], x[i] + mVicinity.mB[i]);
+            FT r = BnbRandom::get(x[i] + mR * mVicinity.mA[i], x[i] + mR * mVicinity.mB[i]);
             FT u;
             if (!mProblem.mVariables.empty()) {
                 if (mProblem.mVariables[i] == NlpProblem<FT>::VariableTypes::GENERIC) {
@@ -60,11 +86,31 @@ public:
 
     }
 
-private:
+    void reset() {
+        mR = mParams.mRinit;
+    }
+    
+    void fail(int ntries) {
+        mR *= mParams.mDec;
+        std::cout << "Decreased mR := " << mR << "\n";
+    }
 
+    void success(int ntries, FT pv, FT nv) {
+        mR = BNBMIN(mParams.mRmax, mR * mParams.mInc);
+        //std::cout << "Increased mR := " << mR << "\n";
+    }
+
+    bool cont() const {
+        return mR >= mParams.mRmin;
+    }
+    
+  
+private:
 
     const NlpProblem<FT>& mProblem;
     const Box<FT>& mVicinity;
+    const Params mParams;
+    FT mR;
 };
 
 #endif	/* STATICPERT_HPP */

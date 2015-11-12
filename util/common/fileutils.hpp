@@ -55,6 +55,20 @@ public:
         }
     }
 
+    /**
+     * Creates a file with the given name and content
+     * @param fname file name
+     * @param content file content 
+     */
+    static void createFileWithContent(const char* fname, const char* content) {
+        std::ofstream os(fname);
+          if (os.is_open()) {
+            os << content;  
+            os.close();
+        } else {
+            BNB_ERROR_REPORT("Unable to open the output file\n");
+        }      
+    }
 };
 
 #endif
