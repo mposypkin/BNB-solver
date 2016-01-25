@@ -57,11 +57,13 @@ public:
 
     /**
      * Creates a file with the given name and content
+     * if file is opened updates its contents
+     * 
      * @param fname file name
      * @param content file content 
      */
-    static void createFileWithContent(const char* fname, const char* content) {
-        std::ofstream os(fname);
+    static void updateFileWithContent(const char* fname, const char* content) {
+        std::ofstream os(fname, std::ios_base::app);
           if (os.is_open()) {
             os << content;  
             os.close();

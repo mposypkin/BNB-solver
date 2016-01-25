@@ -61,11 +61,12 @@ public:
                 if(mLS != NULL) {
                     FT v;
                     mLS->search(z, &v);
+                    std::cout << "Local search returned " << v << "\n";
                 }
                 FT objv = mProb.mObj->func((FT*) z);
                 if (objv < robjv) {
                     mPert.success(i, objv, robjv);
-                    std::cout << "robjv = " << robjv << "\n";
+                    std::cout << "objv = " << objv << "\n";
                     robjv = objv;
                     VecUtils::vecCopy(n, (FT*) z, (FT*) y);
                     i = 0;

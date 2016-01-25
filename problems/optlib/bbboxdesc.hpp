@@ -59,6 +59,10 @@ public:
          * Upper bound on granularity
          */
         FT mHUB = 1e+02;
+        /**
+         * Performs only coordinate descent if true
+         */
+        bool mOnlyCoordinateDescent = false;
 
     };
 
@@ -132,19 +136,22 @@ public:
 
                     FT db = fb - fv;
                     FT df = ff - fv;
+                    FT gi = 0;
                     if ((df >= 0) && (db >= 0)) {
                         g[i] = 0;
                         sft[i] = 0;
                     } else if (df < db) {
                         sft[i] = sf;
                         g[i] = df;
+                        gi = df;
                     } else {
                         sft[i] = sb;
-                        g[i] = db;
+                        g[i] = -db;
+                        gi = db;
                     }
-                    if (g[i] < gmin) {
+                    if (gi < gmin) {
                         imin = i;
-                        gmin = g[i];
+                        gmin = gi;
                     }
                 }
                 if (imin == -1) {
@@ -158,14 +165,14 @@ public:
 
         };
 
-        int i = 0;
+        int k = 0;
         FT xk[n];
         int bump = 0;
         for (;;) {
-            i++;
+            k++;
             getg();
             if (imin == -1) {
-                if(bump --) {
+                if (bump--) {
                     std::cout << "BUMP!!!\n";
                     h = mOptions.mHInit;
                     continue;
@@ -173,17 +180,55 @@ public:
                 rv = true;
                 break;
             }
-            VecUtils::vecSaxpy(n, x, g, 1. / gmin, xk);
-            project(xk);
-            FT u = obj->func(xk);
-            if (u - uold > gmin) {
+            FT u;
+
+
+            /*
+            if (!mOptions.mOnlyCoordinateDescent) {
+                VecUtils::vecSaxpy(n, x, g, h * 1. / gmin, xk);
+                //VecUtils::vecSaxpy(n, x, g, 1. / gmin, xk);
+                project(xk);
+                u = obj->func(xk);
+            }
+             */
+
+
+            if (!mOptions.mOnlyCoordinateDescent) {
+                FT ubest = uold;
+                FT alph = h;
+                FT mul = 0.5;
+                FT mulmin = 1. / 64.;
+                FT xn[n];
+                for (;;) {
+                    VecUtils::vecSaxpy(n, x, g, alph * 1. / gmin, xn);
+                    project(xn);
+                    u = obj->func(xn);
+                    if (u < ubest) {
+                        ubest = u;
+                        VecUtils::vecCopy(n, xn, xk);
+                        alph += mul * h;
+                        //std::cout << k << ": alph = " << alph << "mul = " << mul << "u = " << u << "\n";
+                    } else {
+                        if (mul >= mulmin) {
+                            mul *= 0.5;
+                            alph -= mul * h;                            
+                        } else {
+                            u = ubest;
+                            break;
+                        }
+                    }
+                }
+            }
+
+
+            if (mOptions.mOnlyCoordinateDescent || (u > uold + gmin)) {
                 VecUtils::vecCopy(n, x, xk);
                 xk[imin] = x[imin] + sft[imin];
                 u = uold + gmin;
             }
             FT xdiff = VecUtils::vecDist(n, x, xk);
             FT fdiff = u - uold;
-            if (mStopper->stopnow(xdiff, fdiff, gmin, uold, i)) {
+            if (mStopper->stopnow(xdiff, fdiff, gmin, uold, k)) {
                 rv = true;
                 break;
             }

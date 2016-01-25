@@ -86,7 +86,7 @@ public:
     }
 
     void init(BoxconProblem<FT>& bcp) {
-        BoxconBNB<double>::Sub sub(bcp.mBox);
+        typename BoxconBNB<FT>::Sub sub(bcp.mBox);
         setInitialSub(sub);
     }
 
@@ -165,6 +165,12 @@ private:
     void putSub(Sub & s) {
         BNB_ASSERT(mBounders.size() > mCurBounder);
         mBounders[mCurBounder]->bound(s, mIncumbent);
+        // TMP SOLUTION
+        const FT R = 5;
+        FT r = BoxUtils::radius(s.mBox);
+        if(r < R)
+            return;
+        // TMP
         if (s.mBound < mIncumbent.mValue - mOptions.mEps)
             mSubs.insert(s);
     }

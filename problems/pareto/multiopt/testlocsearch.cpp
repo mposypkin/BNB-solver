@@ -47,15 +47,7 @@ public:
 
 class MyStopper : public GradBoxDescent<double>::Stopper {
     public:
-        /**
-         * Returns true when the search should stop
-         * @param xdiff difference between old and new x
-         * @param fdiff difference between old and new f value
-         * @param gnorm gradient norm
-         * @param fval function value
-         * @param n current step number 
-         */
-        bool stopnow(double xdiff, double fdiff, double gnorm, double fval, int n) {
+        bool stopnow(double xdiff, double fdiff, double* x, double* grad, double fval, int n) {
             if(xdiff <= 0.001) {
                 return true;
             }

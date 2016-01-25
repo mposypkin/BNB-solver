@@ -38,7 +38,7 @@
 class MyStopper : public GradBoxDescent<double>::Stopper {
 public:
 
-    bool stopnow(double xdiff, double fdiff, double gnorm, double fval, int n) {
+    bool stopnow(double xdiff, double fdiff, double* x, double* grad, double fval, int n) {
         return fdiff <= 0.0000001;
     }
 };

@@ -9,6 +9,7 @@
 #ifndef GRADBOXDESC_HPP
 #define	GRADBOXDESC_HPP
 
+#include <limits>
 #include "locboxoptim.hpp"
 #include "util/common/vec.hpp"
 #include "util/common/bnberrcheck.hpp"
@@ -25,23 +26,23 @@ public:
          * Returns true when the search should stop
          * @param xdiff difference between old and new x
          * @param fdiff difference between old and new f value
-         * @param gnorm gradient norm
+         * @param x point
+         * @param grad gradient 
          * @param fval function value
          * @param n current step number 
          */
-        virtual bool stopnow(FT xdiff, FT fdiff, FT gnorm, FT fval, int n) = 0;
+        virtual bool stopnow(FT xdiff, FT fdiff, FT* x, FT* grad, FT fval, int n) = 0;
     };
-    
+
     /**
      * Options for Gradient Box Descent method
      */
     struct Options {
-        
         /**
          * Initial value of granularity
          */
         FT mGInit = 0.01;
-        
+
         /**
          * Increase in the case of success
          */
@@ -51,16 +52,15 @@ public:
          */
         FT mDec = 0.5;
     };
-    
+
     /**
      * The constructor
      *
      * @param box bounding box
      */
-    GradBoxDescent(Box<FT>& box,  Stopper* stopper) : 
-      LocalBoxOptimizer <FT> (box),
-      mStopper(stopper)
-    {
+    GradBoxDescent(Box<FT>& box, Stopper* stopper) :
+    LocalBoxOptimizer <FT> (box),
+    mStopper(stopper) {
     }
 
     /**
@@ -72,7 +72,6 @@ public:
         mG.realloc(obj->getDim());
         mXk.realloc(obj->getDim());
     }
-
 
     /**
      * Perform search
@@ -86,34 +85,40 @@ public:
         Objective<FT>* obj = LocalOptimizer<FT>::getObjective();
 
         project(x);
+
         FT uold = obj->func(x);
         FT u;
         FT g = mOptions.mGInit;
         int i = 0;
         int n = obj->getDim();
+        FT xdiff = std::numeric_limits<FT>::max();
+        FT fdiff = std::numeric_limits<FT>::max();
+
         for (;;) {
             i++;
+
             obj->grad(x, mG);
-            double gnorm = VecUtils::vecNormTwo(n, (double*)mG);
-            VecUtils::vecSaxpy(n, x, (FT*) mG, -g, (FT*) mXk);
-            project(mXk);
-            u = obj->func(mXk);
-            FT xdiff = VecUtils::vecDist(n, x, (FT*) mXk);
-            FT fdiff = BNBABS(u - uold);
-
-
-            if (mStopper->stopnow(xdiff, fdiff, gnorm, uold, i)) {
-                *v = u;
+            if (mStopper->stopnow(xdiff, fdiff, (FT*) x, (FT*) mG, uold, i)) {
+                *v = uold;
                 rv = true;
                 break;
             }
+            VecUtils::vecSaxpy(n, x, (FT*) mG, -g, (FT*) mXk);
+            project(mXk);
+            u = obj->func(mXk);
+
             if (u >= uold) {
                 g *= mOptions.mDec;
             } else {
                 g *= mOptions.mInc;
                 VecUtils::vecCopy(n, (FT*) mXk, x);
                 uold = u;
+                xdiff = VecUtils::vecDist(n, x, (FT*) mXk);
+                fdiff = BNBABS(u - uold);
             }
+
+
+
         }
         return true;
     }
@@ -125,7 +130,7 @@ public:
     Options& getOptions() {
         return mOptions;
     }
-    
+
 private:
 
     void project(FT* x) {
