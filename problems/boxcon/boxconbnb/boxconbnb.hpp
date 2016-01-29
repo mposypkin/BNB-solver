@@ -166,10 +166,12 @@ private:
         BNB_ASSERT(mBounders.size() > mCurBounder);
         mBounders[mCurBounder]->bound(s, mIncumbent);
         // TMP SOLUTION
+#if 0        
         const FT R = 5;
         FT r = BoxUtils::radius(s.mBox);
         if(r < R)
             return;
+#endif        
         // TMP
         if (s.mBound < mIncumbent.mValue - mOptions.mEps)
             mSubs.insert(s);
