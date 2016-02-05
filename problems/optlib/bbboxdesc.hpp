@@ -6,7 +6,7 @@
  */
 
 #ifndef BBBOXDESC_HPP
-#define	BBBOXDESC_HPP
+#define BBBOXDESC_HPP
 
 #include "locboxoptim.hpp"
 #include "util/common/vec.hpp"
@@ -156,6 +156,8 @@ public:
                 }
                 if (imin == -1) {
                     //std::cout << "getg: h = " << h << "\n";
+                    //std::cout.flush();
+
                     if (h > mOptions.mHLB)
                         h *= mOptions.mDec;
                     else break;
@@ -165,12 +167,22 @@ public:
 
         };
 
+
+
         int k = 0;
         FT xk[n];
         int bump = 0;
         for (;;) {
             k++;
+
+            //std::cout << "BP 1\n";
+            //std::cout.flush();
+
             getg();
+
+            //std::cout << "BP 2\n";
+            //std::cout.flush();
+
             if (imin == -1) {
                 if (bump--) {
                     std::cout << "BUMP!!!\n";
@@ -197,21 +209,27 @@ public:
                 FT ubest = uold;
                 FT alph = h;
                 FT mul = 0.5;
-                FT mulmin = 1. / 64.;
+                const FT mulmin = 1. / 64.;
+                const FT mindesc = 1e-3;
                 FT xn[n];
                 for (;;) {
+                    
+                    //std::cout << "BP 3\n";
+                    //std::cout.flush();
+
                     VecUtils::vecSaxpy(n, x, g, alph * 1. / gmin, xn);
                     project(xn);
                     u = obj->func(xn);
-                    if (u < ubest) {
+                    if (ubest - u > mindesc) {
                         ubest = u;
                         VecUtils::vecCopy(n, xn, xk);
                         alph += mul * h;
                         //std::cout << k << ": alph = " << alph << "mul = " << mul << "u = " << u << "\n";
+                        std::cout.flush();
                     } else {
                         if (mul >= mulmin) {
                             mul *= 0.5;
-                            alph -= mul * h;                            
+                            alph -= mul * h;
                         } else {
                             u = ubest;
                             break;
@@ -272,5 +290,5 @@ private:
 };
 
 
-#endif	/* BBBOXDESC_HPP */
+#endif /* BBBOXDESC_HPP */
 
